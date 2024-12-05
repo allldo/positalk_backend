@@ -1,5 +1,4 @@
-from django.db.models import Model, PositiveIntegerField
-from rest_framework.fields import CharField
+from django.db.models import Model, PositiveIntegerField, CharField
 
 
 class GiftSession(Model):
