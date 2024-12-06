@@ -9,9 +9,17 @@ class BlockNestedSerializer(ModelSerializer):
         model = Block
         fields = "__all__"
 
+class ArticleNestedSerializer(ModelSerializer):
+
+    class Meta:
+        model = Article
+        exclude = ["release_datetime", "related_articles", "full_image", "body"]
+
 
 class ArticleSerializer(ModelSerializer):
     body = BlockNestedSerializer(many=True)
+    related_articles = ArticleNestedSerializer(many=True)
+
     class Meta:
         model = Article
         fields = "__all__"
