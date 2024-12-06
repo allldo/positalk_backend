@@ -24,12 +24,18 @@ class Article(Model):
     time_for_reading = CharField(max_length=150)
     related_articles = ManyToManyField("Article", null=True, blank=True)
 
+    class Meta:
+        ordering = ['-date_created']
+
     def save(self, *args, **kwargs):
         self.slug = slugify(self.title)
         super(Article, self).save(*args, **kwargs)
         if self.release_datetime is None:
             self.release_datetime = self.date_created
             self.save()
+
+    def __str__(self):
+        return self.title
 
 class Test(Model):
     CALCULATION_CHOICES = {
@@ -58,8 +64,8 @@ class Answer(Model):
 
 
 class Block(Model):
-    title = CharField(max_length=275)
-    description = TextField()
+    title = CharField(max_length=275, null=True, blank=True)
+    description = TextField(null=True, blank=True)
 
     def __str__(self):
         return self.title

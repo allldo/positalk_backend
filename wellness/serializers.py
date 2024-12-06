@@ -13,7 +13,7 @@ class ArticleNestedSerializer(ModelSerializer):
 
     class Meta:
         model = Article
-        exclude = ["release_datetime", "related_articles", "full_image", "body"]
+        exclude = ["author", "date_created", "release_datetime", "related_articles", "full_image", "body"]
 
 
 class ArticleSerializer(ModelSerializer):
