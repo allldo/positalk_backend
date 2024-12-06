@@ -1,5 +1,6 @@
-from django.db.models import Model, CharField, DateTimeField, ImageField, TextField, PositiveIntegerField, ManyToManyField
-
+from django.db.models import Model, CharField, DateTimeField, ImageField, TextField, PositiveIntegerField, \
+    ManyToManyField, SlugField
+from pytils.translit import slugify
 
 class Article(Model):
     AGE_CHOICES = {
@@ -8,6 +9,7 @@ class Article(Model):
     }
     title = CharField(max_length=125)
     author = CharField(max_length=125)
+    slug = SlugField(max_length=275, unique=True, blank=True)
     date_created = DateTimeField(auto_now_add=True)
     description = CharField(max_length=550)
     cover = ImageField(upload_to='article_covers/', null=True, blank=True)
@@ -18,6 +20,10 @@ class Article(Model):
     )
     # Возможность планирования статьи
     release_datetime = DateTimeField(null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.title)
+        super(Post, self).save(*args, **kwargs)
 
 class Test(Model):
     CALCULATION_CHOICES = {
