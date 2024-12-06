@@ -6,6 +6,7 @@ from wellness.serializers import ArticleSerializer, TestSerializer
 
 class ArticleViewSet(ModelViewSet):
     serializer_class = ArticleSerializer
+    lookup_field = "slug"
     queryset = Article.objects.all()
 
 
