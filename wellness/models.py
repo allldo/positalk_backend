@@ -13,6 +13,7 @@ class Article(Model):
     date_created = DateTimeField(auto_now_add=True)
     description = CharField(max_length=550)
     cover = ImageField(upload_to='article_covers/', null=True, blank=True)
+    full_image = ImageField(upload_to='article_full_images/', null=True, blank=True)
     body = ManyToManyField("Block", null=True, blank=True)
     age_restriction = PositiveIntegerField(
         choices=AGE_CHOICES,
@@ -26,6 +27,9 @@ class Article(Model):
     def save(self, *args, **kwargs):
         self.slug = slugify(self.title)
         super(Article, self).save(*args, **kwargs)
+        if self.release_datetime is None:
+            self.release_datetime = self.date_created
+            self.save()
 
 class Test(Model):
     CALCULATION_CHOICES = {
