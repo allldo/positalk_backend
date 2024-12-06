@@ -1,10 +1,17 @@
 from rest_framework.serializers import ModelSerializer
 
-from wellness.models import Article, Question, Answer
+from wellness.models import Article, Question, Answer, Block
+
+
+class BlockNestedSerializer(ModelSerializer):
+
+    class Meta:
+        model = Block
+        fields = "__all__"
 
 
 class ArticleSerializer(ModelSerializer):
-
+    body = BlockNestedSerializer(many=True)
     class Meta:
         model = Article
         fields = "__all__"
