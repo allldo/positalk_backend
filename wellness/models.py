@@ -20,6 +20,7 @@ class Article(Model):
     )
     # Возможность планирования статьи
     release_datetime = DateTimeField(null=True, blank=True)
+    time_for_reading = CharField(max_length=150)
     related_articles = ManyToManyField("Article", null=True, blank=True)
 
     def save(self, *args, **kwargs):
