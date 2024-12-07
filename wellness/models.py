@@ -42,6 +42,8 @@ class Test(Model):
         ("point", "По баллам"),
         ("position", "По порядковому номеру ответов"),
     }
+
+    slug = SlugField(max_length=275, unique=True, blank=True)
     title = CharField(max_length=125)
     description = CharField(max_length=550)
     cover = ImageField(upload_to='test_covers/', null=True, blank=True)
@@ -51,6 +53,10 @@ class Test(Model):
 
     def __str__(self):
         return f"{self.title}"
+
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.title)
+        super(Test, self).save(*args, **kwargs)
 
 
 class Question(Model):
