@@ -4,8 +4,9 @@ from rest_framework.filters import SearchFilter
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
+from wellness.filters import CaseInsensitiveSearchFilter
 from wellness.models import Article, Test, Answer, Result
-from wellness.pagination import ArticlePagination
+from wellness.pagination import ArticlePagination, TestPagination
 from wellness.serializers import ArticleSerializer, TestSerializer, ArticleNestedSerializer, TestSubmissionSerializer
 
 
@@ -13,8 +14,7 @@ class ArticleViewSet(ModelViewSet):
     serializer_class = ArticleSerializer
     lookup_field = "slug"
     queryset = Article.objects.all()
-    filter_backends = [SearchFilter]
-    search_fields = ['title']
+    filter_backends = [CaseInsensitiveSearchFilter]
     pagination_class = ArticlePagination
 
     def get_serializer_class(self):
@@ -22,9 +22,12 @@ class ArticleViewSet(ModelViewSet):
             return ArticleNestedSerializer
         return ArticleSerializer
 
+
 class TestViewSet(ModelViewSet):
     serializer_class = TestSerializer
     queryset = Test.objects.all()
+    filter_backends = [CaseInsensitiveSearchFilter]
+    pagination_class = TestPagination
 
     def retrieve(self, request, pk=None):
         try:
