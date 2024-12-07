@@ -33,7 +33,7 @@ class TestViewSet(ModelViewSet):
     def retrieve(self, request, slug=None):
         try:
             test = Test.objects.get(slug=slug)
-            serializer = TestSerializer(test)
+            serializer = TestSerializer(test, context={"request": request})
             return Response(serializer.data, status=status.HTTP_200_OK)
         except Test.DoesNotExist:
             return Response({"detail": "Тест не найден"}, status=status.HTTP_404_NOT_FOUND)
