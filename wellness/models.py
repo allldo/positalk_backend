@@ -1,5 +1,7 @@
+from tkinter import Image
+
 from django.db.models import Model, CharField, DateTimeField, ImageField, TextField, PositiveIntegerField, \
-    ManyToManyField, SlugField
+    ManyToManyField, SlugField, ForeignKey, CASCADE, IntegerField
 from pytils.translit import slugify
 
 class Article(Model):
@@ -48,19 +50,39 @@ class Test(Model):
     calculation = CharField(max_length=50, choices=CALCULATION_CHOICES)
     questions = ManyToManyField("Question")
 
+    def __str__(self):
+        return f"{self.title}"
+
 
 class Question(Model):
     title = CharField(max_length=550, null=True, blank=True)
     image = ImageField(upload_to='question_images/', null=True, blank=True)
     answers = ManyToManyField("Answer", blank=True)
 
+    def __str__(self):
+        return f"{self.title}"
+
 
 class Answer(Model):
     title = CharField(max_length=550, null=True, blank=True)
     image = ImageField(upload_to='answer_images/', null=True, blank=True)
+    points = IntegerField(default=0)
 
     def __str__(self):
         return f"{self.title}"
+
+
+class Result(Model):
+    test = ForeignKey("Test", on_delete=CASCADE)
+    title = CharField(max_length=275)
+    description = TextField()
+    cover = ImageField(upload_to='result_covers/', null=True, blank=True)
+    min_points = IntegerField(null=True, blank=True)
+    max_points = IntegerField(null=True, blank=True)
+    position = IntegerField(null=True, blank=True)
+
+    def __str__(self):
+        return f"Результат для теста: {self.test.title}"
 
 
 class Block(Model):

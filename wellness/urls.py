@@ -8,5 +8,5 @@ router.register(r'articles', ArticleViewSet, basename='article')
 router.register(r'tests', TestViewSet, basename='test')
 
 urlpatterns = [
-    path('', include(router.urls)),
-]
+    path('tests/check/', TestViewSet.as_view({'post': 'check'})),
+] + router.urls
