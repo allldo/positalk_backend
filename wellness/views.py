@@ -51,7 +51,6 @@ class TestViewSet(ModelViewSet):
 
         if test.calculation == "point":
             total_points = sum(getattr(answer, 'points', 1) for answer in answers)
-            print(total_points)
             result = Result.objects.filter(
                 test=test,
                 min_points__lte=total_points,

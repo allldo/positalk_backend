@@ -1,5 +1,3 @@
-from tkinter import Image
-
 from django.db.models import Model, CharField, DateTimeField, ImageField, TextField, PositiveIntegerField, \
     ManyToManyField, SlugField, ForeignKey, CASCADE, IntegerField
 from pytils.translit import slugify
