@@ -47,6 +47,7 @@ class Test(Model):
     title = CharField(max_length=125)
     description = CharField(max_length=550)
     cover = ImageField(upload_to='test_covers/', null=True, blank=True)
+    full_image = ImageField(upload_to='test_full_images/', null=True, blank=True)
     calculation = CharField(max_length=50, choices=CALCULATION_CHOICES)
     questions = ManyToManyField("Question")
     time_for_solving = CharField(max_length=75, default="20 минут")
