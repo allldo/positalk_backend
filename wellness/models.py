@@ -11,7 +11,7 @@ class Article(Model):
     author = CharField(max_length=125)
     slug = SlugField(max_length=275, unique=True, blank=True)
     date_created = DateTimeField(auto_now_add=True)
-    description = CharField(max_length=550)
+    description = TextField()
     cover = ImageField(upload_to='article_covers/', null=True, blank=True)
     full_image = ImageField(upload_to='article_full_images/', null=True, blank=True)
     body = ManyToManyField("Block", null=True, blank=True)
@@ -45,7 +45,7 @@ class Test(Model):
 
     slug = SlugField(max_length=275, unique=True, blank=True)
     title = CharField(max_length=125)
-    description = CharField(max_length=550)
+    description = TextField()
     cover = ImageField(upload_to='test_covers/', null=True, blank=True)
     full_image = ImageField(upload_to='test_full_images/', null=True, blank=True)
     calculation = CharField(max_length=50, choices=CALCULATION_CHOICES)
