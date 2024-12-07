@@ -30,9 +30,9 @@ class TestViewSet(ModelViewSet):
     filter_backends = [CaseInsensitiveSearchFilter]
     pagination_class = TestPagination
 
-    def retrieve(self, request, pk=None):
+    def retrieve(self, request, slug=None):
         try:
-            test = Test.objects.get(id=pk)
+            test = Test.objects.get(slug=slug)
             serializer = TestSerializer(test)
             return Response(serializer.data, status=status.HTTP_200_OK)
         except Test.DoesNotExist:
