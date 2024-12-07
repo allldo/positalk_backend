@@ -26,6 +26,7 @@ class ArticleViewSet(ModelViewSet):
 class TestViewSet(ModelViewSet):
     serializer_class = TestSerializer
     queryset = Test.objects.all()
+    lookup_field = "slug"
     filter_backends = [CaseInsensitiveSearchFilter]
     pagination_class = TestPagination
 
@@ -42,7 +43,7 @@ class TestViewSet(ModelViewSet):
     )
     def check(self, request):
         try:
-            test = Test.objects.get(id=request.data.get('test_id', ''))
+            test = Test.objects.get(slug=request.data.get('test_slug', ''))
         except Test.DoesNotExist:
             return Response({"detail": "Тест не найден"}, status=status.HTTP_404_NOT_FOUND)
 
