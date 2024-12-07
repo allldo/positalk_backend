@@ -1,7 +1,7 @@
 from rest_framework.fields import IntegerField, ListField
 from rest_framework.serializers import ModelSerializer, Serializer
 
-from wellness.models import Article, Question, Answer, Block
+from wellness.models import Article, Question, Answer, Block, Test
 
 
 class BlockNestedSerializer(ModelSerializer):
@@ -44,7 +44,7 @@ class QuestionNestedSerializer(ModelSerializer):
 class TestSerializer(ModelSerializer):
     questions = QuestionNestedSerializer(many=True)
     class Meta:
-        model = Article
+        model = Test
         fields = "__all__"
 
 
