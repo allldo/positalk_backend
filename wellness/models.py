@@ -52,10 +52,11 @@ class Test(Model):
     slug = SlugField(max_length=275, unique=True, blank=True)
     title = CharField(max_length=125, verbose_name="Название")
     description = TextField(verbose_name="Описание")
+    second_description = TextField(verbose_name="Описание 2 (для тестов 3 типа)")
     cover = ImageField(upload_to='test_covers/', null=True, blank=True, verbose_name="Обложка")
     full_image = ImageField(upload_to='test_full_images/', null=True, blank=True, verbose_name="Полная картинка")
     calculation = CharField(max_length=50, choices=CALCULATION_CHOICES, verbose_name="Подсчет")
-    questions = ManyToManyField("Question", verbose_name="Вопросы")
+    questions = ManyToManyField("Question", verbose_name="Вопросы", related_name="tests")
     time_for_solving = CharField(max_length=75, default="20 минут", verbose_name="Время на решение")
     test_type = IntegerField(choices=TEST_TYPE_CHOICES, default=1, verbose_name="Тип теста")
 
@@ -74,7 +75,7 @@ class Test(Model):
 class Question(Model):
     title = CharField(max_length=550, null=True, blank=True, verbose_name="Название")
     image = ImageField(upload_to='question_images/', null=True, blank=True, verbose_name="Картинка")
-    answers = ManyToManyField("Answer", blank=True, verbose_name="Вопросы")
+    answers = ManyToManyField("Answer", blank=True, verbose_name="Ответы")
 
     def __str__(self):
         return f"{self.title}"

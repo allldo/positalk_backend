@@ -1,4 +1,4 @@
-from rest_framework.fields import IntegerField, ListField
+from rest_framework.fields import IntegerField, ListField, SlugField
 from rest_framework.serializers import ModelSerializer, Serializer
 
 from wellness.models import Article, Question, Answer, Block, Test
@@ -49,7 +49,7 @@ class TestSerializer(ModelSerializer):
 
 
 class TestSubmissionSerializer(Serializer):
-    test_id = IntegerField()
+    test_slug = SlugField()
     answers = ListField(
         child=IntegerField(),
         help_text="Список ID выбранных ответов"

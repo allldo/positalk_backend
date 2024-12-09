@@ -4,7 +4,7 @@ from django.forms import ModelForm, ModelMultipleChoiceField
 
 from wellness.models import Article, Question, Answer, Test, Block, Result
 
-admin.site.register(Test)
+# admin.site.register(Test)
 admin.site.register(Result)
 
 
@@ -33,14 +33,31 @@ class ArticleAdminForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if self.instance and self.instance.pk:
-            # Показываем только связанные с текущей статьей или свободные блоки
             self.fields['body'].queryset = Block.objects.filter(
                 Q(articles=self.instance) | Q(articles=None)
             ).distinct()
         else:
-            # Если статья новая, показываем только свободные блоки
             self.fields['body'].queryset = Block.objects.filter(articles=None)
 
 class ArticleAdmin(admin.ModelAdmin):
     form = ArticleAdminForm
 admin.site.register(Article, ArticleAdmin)
+
+
+class TestAdminForm(ModelForm):
+    class Meta:
+        model = Test
+        fields = "__all__"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance and self.instance.pk:
+            self.fields['questions'].queryset = Question.objects.filter(
+                Q(tests=self.instance) | ~Q(tests__isnull=False)
+            ).distinct()
+        else:
+            self.fields['questions'].queryset = Question.objects.filter(tests__isnull=True)
+
+class TestAdmin(admin.ModelAdmin):
+    form = TestAdminForm
+admin.site.register(Test, TestAdmin)
