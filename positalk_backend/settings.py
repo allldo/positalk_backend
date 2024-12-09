@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'drf_spectacular',
+    'tinymce',
     'cabinet',
     'psy_store',
     'wellness'

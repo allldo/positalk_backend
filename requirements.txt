@@ -33,3 +33,4 @@ uritemplate==4.1.1
 vine==5.1.0
 wcwidth==0.2.13
 pytils~=0.4.1
+django-tinymce==4.1.0

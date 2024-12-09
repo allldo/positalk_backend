@@ -1,6 +1,8 @@
 from django.db.models import Model, CharField, DateTimeField, ImageField, TextField, PositiveIntegerField, \
     ManyToManyField, SlugField, ForeignKey, CASCADE, IntegerField
 from pytils.translit import slugify
+from tinymce.models import HTMLField
+
 
 class Article(Model):
     AGE_CHOICES = {
@@ -11,7 +13,7 @@ class Article(Model):
     author = CharField(max_length=125, verbose_name="Автор")
     slug = SlugField(max_length=275, unique=True, blank=True)
     date_created = DateTimeField(auto_now_add=True)
-    description = TextField(verbose_name="Описание")
+    description = HTMLField(verbose_name="Описание")
     cover = ImageField(upload_to='article_covers/', null=True, blank=True , verbose_name="Обложка")
     full_image = ImageField(upload_to='article_full_images/', null=True, blank=True , verbose_name="Полная картинка")
     body = ManyToManyField("Block", null=True, blank=True , related_name="articles",verbose_name="Тело статьи")
@@ -51,8 +53,8 @@ class Test(Model):
     }
     slug = SlugField(max_length=275, unique=True, blank=True)
     title = CharField(max_length=125, verbose_name="Название")
-    description = TextField(verbose_name="Описание")
-    second_description = TextField(verbose_name="Описание 2 (для тестов 3 типа)")
+    description = HTMLField(verbose_name="Описание")
+    second_description = HTMLField(null=True, blank=True, verbose_name="Описание 2 (для тестов 3 типа)")
     cover = ImageField(upload_to='test_covers/', null=True, blank=True, verbose_name="Обложка")
     full_image = ImageField(upload_to='test_full_images/', null=True, blank=True, verbose_name="Полная картинка")
     calculation = CharField(max_length=50, choices=CALCULATION_CHOICES, verbose_name="Подсчет")
