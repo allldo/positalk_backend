@@ -41,6 +41,13 @@ class QuestionNestedSerializer(ModelSerializer):
         fields = "__all__"
 
 
+class TestListSerializer(ModelSerializer):
+
+    class Meta:
+        model = Test
+        exclude = ['questions', 'full_image']
+
+
 class TestSerializer(ModelSerializer):
     questions = QuestionNestedSerializer(many=True)
     class Meta:

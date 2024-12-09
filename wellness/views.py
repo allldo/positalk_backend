@@ -1,13 +1,16 @@
 from django.conf import settings
 from drf_spectacular.utils import extend_schema
 from rest_framework import status
+from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
 from wellness.filters import CaseInsensitiveSearchFilter
 from wellness.models import Article, Test, Answer, Result
 from wellness.pagination import ArticlePagination, TestPagination
-from wellness.serializers import ArticleSerializer, TestSerializer, ArticleNestedSerializer, TestSubmissionSerializer
+from wellness.serializers import ArticleSerializer, TestSerializer, ArticleNestedSerializer, TestSubmissionSerializer, \
+    TestListSerializer
+
 
 class ArticleViewSet(ModelViewSet):
     serializer_class = ArticleSerializer
@@ -83,3 +86,8 @@ class TestViewSet(ModelViewSet):
             }, status=status.HTTP_200_OK)
         else:
             return Response({"detail": "Результат не определён"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class TestListAPIView(ListAPIView):
+    queryset = Test.objects.all()[:5]
+    serializer_class = TestListSerializer
