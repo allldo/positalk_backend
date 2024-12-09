@@ -74,6 +74,7 @@ class TestViewSet(ModelViewSet):
         if result:
             return Response({
                 "result": result.description,
+                "test_name": result.test.title,
                 "image": f"{settings.CURRENT_DOMAIN}{result.test.full_image.url}",
                 "details": {
                     "total_points": total_points if test.calculation == "point" else None,
