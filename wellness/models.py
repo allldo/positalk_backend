@@ -5,10 +5,10 @@ from tinymce.models import HTMLField
 
 
 class Article(Model):
-    AGE_CHOICES = {
+    AGE_CHOICES = [
         (16, "16+"),
         (18, "18+"),
-    }
+    ]
     title = CharField(max_length=125, verbose_name="Название")
     author = CharField(max_length=125, verbose_name="Автор")
     slug = SlugField(max_length=275, unique=True, blank=True)
@@ -42,15 +42,15 @@ class Article(Model):
         return self.title
 
 class Test(Model):
-    CALCULATION_CHOICES = {
+    CALCULATION_CHOICES = [
         ("point", "По баллам"),
         ("position", "По порядковому номеру ответов"),
-    }
-    TEST_TYPE_CHOICES = {
+    ]
+    TEST_TYPE_CHOICES = [
         (1, "Первый"),
         (2, "Второй"),
         (3, "Третий"),
-    }
+    ]
     slug = SlugField(max_length=275, unique=True, blank=True)
     title = CharField(max_length=125, verbose_name="Название")
     description = HTMLField(verbose_name="Описание")
