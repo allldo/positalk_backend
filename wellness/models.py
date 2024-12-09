@@ -44,7 +44,11 @@ class Test(Model):
         ("point", "По баллам"),
         ("position", "По порядковому номеру ответов"),
     }
-
+    TEST_TYPE_CHOICES = {
+        (1, "Первый"),
+        (2, "Второй"),
+        (3, "Третий"),
+    }
     slug = SlugField(max_length=275, unique=True, blank=True)
     title = CharField(max_length=125, verbose_name="Название")
     description = TextField(verbose_name="Описание")
@@ -53,6 +57,7 @@ class Test(Model):
     calculation = CharField(max_length=50, choices=CALCULATION_CHOICES, verbose_name="Подсчет")
     questions = ManyToManyField("Question", verbose_name="Вопросы")
     time_for_solving = CharField(max_length=75, default="20 минут", verbose_name="Время на решение")
+    test_type = IntegerField(choices=TEST_TYPE_CHOICES, default=1, verbose_name="Тип теста")
 
     def __str__(self):
         return f"{self.title}"
@@ -87,7 +92,7 @@ class Answer(Model):
 class Result(Model):
     test = ForeignKey("Test", on_delete=CASCADE, verbose_name="Тест")
     title = CharField(max_length=275, verbose_name="Название")
-    description = TextField(verbose_name="Оисание")
+    description = TextField(verbose_name="Описание")
     cover = ImageField(upload_to='result_covers/', null=True, blank=True, verbose_name="Обложка")
     min_points = IntegerField(null=True, blank=True, verbose_name="Минимальное кол-во очков")
     max_points = IntegerField(null=True, blank=True, verbose_name="Максимальное кол-во очков")
@@ -95,6 +100,10 @@ class Result(Model):
 
     def __str__(self):
         return f"Результат для теста: {self.test.title}"
+
+    class Meta:
+        verbose_name = "Результат теста"
+        verbose_name_plural = "Результаты тестов"
 
 
 class Block(Model):
