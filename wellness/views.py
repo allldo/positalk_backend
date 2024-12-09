@@ -1,6 +1,6 @@
+from django.conf import settings
 from drf_spectacular.utils import extend_schema
 from rest_framework import status
-from rest_framework.filters import SearchFilter
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
@@ -8,7 +8,6 @@ from wellness.filters import CaseInsensitiveSearchFilter
 from wellness.models import Article, Test, Answer, Result
 from wellness.pagination import ArticlePagination, TestPagination
 from wellness.serializers import ArticleSerializer, TestSerializer, ArticleNestedSerializer, TestSubmissionSerializer
-
 
 class ArticleViewSet(ModelViewSet):
     serializer_class = ArticleSerializer
@@ -75,7 +74,7 @@ class TestViewSet(ModelViewSet):
         if result:
             return Response({
                 "result": result.description,
-                "image": result.test.full_image,
+                "image": f"{settings.CURRENT_DOMAIN}{result.test.full_image.url}",
                 "details": {
                     "total_points": total_points if test.calculation == "point" else None,
                     "position_sum": position_sum if test.calculation == "position" else None,

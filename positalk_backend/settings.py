@@ -35,7 +35,7 @@ CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_HEADERS = list(default_headers) + [
      'Access-Control-Allow-Origin',
 ]
-
+CURRENT_DOMAIN = "http://195.133.77.136:8000"
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
