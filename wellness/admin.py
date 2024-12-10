@@ -58,6 +58,11 @@ class TestAdminForm(ModelForm):
         else:
             self.fields['questions'].queryset = Question.objects.filter(tests__isnull=True)
 
+class TestInline(admin.TabularInline):
+    model = Test.questions.through
+    extra = 1
+
 class TestAdmin(admin.ModelAdmin):
     form = TestAdminForm
+    inlines = [TestInline]
 admin.site.register(Test, TestAdmin)
