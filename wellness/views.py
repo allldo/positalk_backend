@@ -9,7 +9,7 @@ from wellness.filters import CaseInsensitiveSearchFilter
 from wellness.models import Article, Test, Answer, Result
 from wellness.pagination import ArticlePagination, TestPagination
 from wellness.serializers import ArticleSerializer, TestSerializer, ArticleNestedSerializer, TestSubmissionSerializer, \
-    TestListSerializer
+    TestListSerializer, ResultSerializer
 
 
 class ArticleViewSet(ModelViewSet):
@@ -58,6 +58,14 @@ class TestViewSet(ModelViewSet):
         answer_counts = Counter(selected_answers)
 
         answer_objects = Answer.objects.filter(id__in=answer_counts.keys())
+        if test.test_type == 3:
+            result = Result.objects.filter(test=test).first()
+            if result is not None:
+                serialized = ResultSerializer(result)
+                return Response(data=serialized.data)
+
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
         if test.calculation == "point":
             total_points = sum(
                 getattr(answer, 'points', 1) * answer_counts[answer.id] for answer in answer_objects
@@ -81,7 +89,7 @@ class TestViewSet(ModelViewSet):
 
         if result:
             return Response({
-                "result": result.description,
+                "description": result.description,
                 "test_name": result.test.title,
                 "image": f"{settings.CURRENT_DOMAIN}{result.test.full_image.url}",
                 "details": {

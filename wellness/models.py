@@ -95,7 +95,7 @@ class Answer(Model):
 class Result(Model):
     test = ForeignKey("Test", on_delete=CASCADE, verbose_name="Тест")
     title = CharField(max_length=275, verbose_name="Название")
-    description = TextField(verbose_name="Описание")
+    description = HTMLField(null=True, blank=True, verbose_name="Описание")
     cover = ImageField(upload_to='result_covers/', null=True, blank=True, verbose_name="Обложка")
     min_points = IntegerField(null=True, blank=True, verbose_name="Минимальное кол-во очков")
     max_points = IntegerField(null=True, blank=True, verbose_name="Максимальное кол-во очков")

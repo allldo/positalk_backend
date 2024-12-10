@@ -1,4 +1,7 @@
-from rest_framework.fields import IntegerField, ListField, SlugField
+from multiprocessing.managers import Value
+
+from django.conf import settings
+from rest_framework.fields import IntegerField, ListField, SlugField, SerializerMethodField
 from rest_framework.serializers import ModelSerializer, Serializer
 
 from wellness.models import Article, Question, Answer, Block, Test
@@ -61,3 +64,20 @@ class TestSubmissionSerializer(Serializer):
         child=IntegerField(),
         help_text="Список ID выбранных ответов"
     )
+
+
+class ResultSerializer(ModelSerializer):
+    image = SerializerMethodField()
+    test_name = SerializerMethodField()
+    class Meta:
+        model = Test
+        fields = ["description", 'image', 'test_name']
+
+    def get_image(self, obj):
+        try:
+            return f"{settings.CURRENT_DOMAIN}{obj.cover.url}"
+        except ValueError:
+            return None
+
+    def get_test_name(self, obj):
+        return obj.test.title
