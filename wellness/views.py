@@ -1,7 +1,7 @@
 from django.conf import settings
 from drf_spectacular.utils import extend_schema
 from rest_framework import status
-from rest_framework.generics import ListAPIView
+from rest_framework.generics import ListAPIView, get_object_or_404
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
@@ -53,10 +53,15 @@ class TestViewSet(ModelViewSet):
         serializer.is_valid(raise_exception=True)
 
         selected_answers = serializer.validated_data['answers']
-        answers = Answer.objects.filter(id__in=selected_answers)
 
+        from collections import Counter
+        answer_counts = Counter(selected_answers)
+
+        answer_objects = Answer.objects.filter(id__in=answer_counts.keys())
         if test.calculation == "point":
-            total_points = sum(getattr(answer, 'points', 1) for answer in answers)
+            total_points = sum(
+                getattr(answer, 'points', 1) * answer_counts[answer.id] for answer in answer_objects
+            )
             result = Result.objects.filter(
                 test=test,
                 min_points__lte=total_points,
@@ -64,7 +69,7 @@ class TestViewSet(ModelViewSet):
             ).first()
 
         elif test.calculation == "position":
-            positions = [i + 1 for i, answer in enumerate(answers)]
+            positions = [i + 1 for i, answer in enumerate(selected_answers)]
             position_sum = sum(positions)
             result = Result.objects.filter(
                 test=test,
