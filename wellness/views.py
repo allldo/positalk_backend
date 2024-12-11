@@ -56,9 +56,11 @@ class TestViewSet(ModelViewSet):
             selected_answers = serializer.validated_data['answers']
         else:
             selected_answers = serializer.validated_data['answers_colors']
+            result = Result.objects.filter(test=test).first()
             return Response({
-                "description": Result.objects.filter(test=test).first().description,
+                "description": result.description,
                 "test_name": test.title,
+                "image": f"{settings.CURRENT_DOMAIN}{result.test.full_image.url}",
                 "vegetative": 1,
                 "deviation": 1,
                 "anxiety": 1
