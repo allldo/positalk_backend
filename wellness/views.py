@@ -55,10 +55,9 @@ class TestViewSet(ModelViewSet):
         if test.test_type != 2:
             selected_answers = serializer.validated_data['answers']
         else:
-            colors_order = [1, 2, 3, 4, 5, 6, 7, 8]
             answers_colors = serializer.validated_data['answers_colors']
-            first_choice = answers_colors[0]
-            second_choice = answers_colors[1]
+            first_choice = answers_colors[0]  # Первый выбор
+            second_choice = answers_colors[1]  # Второй выбор
 
             color_scores = {}
 
@@ -70,8 +69,10 @@ class TestViewSet(ModelViewSet):
                     color_scores[color_id] = 0
                 color_scores[color_id] += color_points
 
-            CO = sum(
-                abs(color_scores.get(color, 0) - color_data['points']) for color, color_data in colors_order.items())
+            CO = 0
+            for color_id, score in color_scores.items():
+                ideal_score = 5
+                CO += abs(score - ideal_score)
 
             VK = (18 - color_scores.get(3, 0) - color_scores.get(7, 0)) / (
                         18 - color_scores.get(5, 0) - color_scores.get(1, 0))
