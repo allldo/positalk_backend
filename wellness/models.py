@@ -94,7 +94,6 @@ class Answer(Model):
 
 class Result(Model):
     test = ForeignKey("Test", on_delete=CASCADE, verbose_name="Тест")
-    title = CharField(max_length=275, verbose_name="Название")
     description = HTMLField(null=True, blank=True, verbose_name="Описание")
     cover = ImageField(upload_to='result_covers/', null=True, blank=True, verbose_name="Обложка")
     min_points = IntegerField(null=True, blank=True, verbose_name="Минимальное кол-во очков")
@@ -102,7 +101,7 @@ class Result(Model):
     position = IntegerField(null=True, blank=True, verbose_name="Позиция")
 
     def __str__(self):
-        return f"Результат для теста: {self.test.title}"
+        return f"Результат для теста: {self.test.title}, id : {self.id}"
 
     class Meta:
         verbose_name = "Результат теста"
