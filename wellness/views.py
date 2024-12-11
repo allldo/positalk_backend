@@ -55,7 +55,7 @@ class TestViewSet(ModelViewSet):
         if test.type != 3:
             selected_answers = serializer.validated_data['answers']
         else:
-            selected_answers = serializer.validated_data['colors']
+            selected_answers = serializer.validated_data['answers_colors']
             return Response({
                 "vegetative": 1,
                 "deviation": 1,

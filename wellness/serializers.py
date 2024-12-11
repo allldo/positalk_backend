@@ -64,7 +64,7 @@ class TestSubmissionSerializer(Serializer):
         child=IntegerField(),
         help_text="Список ID выбранных ответов", allow_null=True, allow_empty=True
     )
-    colors = ListField(allow_null=True, allow_empty=True,
+    answers_colors = ListField(allow_null=True, allow_empty=True,
             child=ListField(
                 child=IntegerField(),
                 help_text="Список ID выбранных ответов для группы"
