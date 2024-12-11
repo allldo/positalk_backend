@@ -1,7 +1,5 @@
-from multiprocessing.managers import Value
-
 from django.conf import settings
-from rest_framework.fields import IntegerField, ListField, SlugField, SerializerMethodField
+from rest_framework.fields import IntegerField, ListField, SlugField, SerializerMethodField, CharField
 from rest_framework.serializers import ModelSerializer, Serializer
 
 from wellness.models import Article, Question, Answer, Block, Test
@@ -33,8 +31,12 @@ class AnswerNestedSerializer(ModelSerializer):
 
     class Meta:
         model = Answer
-        fields = "__all__"
+        fields = ['id', 'title', 'points']
 
+class AnswerNestedDefaultSerializer(Serializer):
+    id = IntegerField()
+    title = CharField()
+    points = IntegerField()
 
 class QuestionNestedSerializer(ModelSerializer):
 
@@ -62,15 +64,17 @@ class TestSubmissionSerializer(Serializer):
     test_slug = SlugField()
     answers = ListField(
         child=IntegerField(),
-        help_text="Список ID выбранных ответов", allow_null=True, allow_empty=True
+        help_text="Список ID выбранных ответов", allow_null=True, allow_empty=True, required=False
     )
-    answers_colors = ListField(allow_null=True, allow_empty=True,
-            child=ListField(
-                child=IntegerField(),
-                help_text="Список ID выбранных ответов для группы"
-            ),
-            help_text="Список групп ответов, где каждая группа — это список ID выбранных ответов"
-        )
+    answers_colors = ListField(
+        allow_null=True,
+        allow_empty=True,
+        child=ListField(
+            child=AnswerNestedDefaultSerializer(),
+            help_text="Список ID выбранных ответов для группы"
+        ),
+        help_text="Список групп ответов, где каждая группа — это список ID выбранных ответов"
+    )
 
 class ResultSerializer(ModelSerializer):
     image = SerializerMethodField()

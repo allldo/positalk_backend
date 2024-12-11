@@ -62,8 +62,9 @@ class TestViewSet(ModelViewSet):
             color_scores = {}
 
             for choice_group in [first_choice, second_choice]:
+                print(choice_group)
                 for color_data in choice_group:
-                    color_id = color_data['answer_id']
+                    color_id = color_data['id']
 
                     try:
                         answer = Answer.objects.get(id=color_id)
@@ -85,7 +86,7 @@ class TestViewSet(ModelViewSet):
 
             anxiety_score = 0
             for color1, color2 in zip(first_choice, second_choice):
-                anxiety_score += abs(color1['answer_id'] - color2['answer_id'])
+                anxiety_score += abs(color1['id'] - color2['id'])
             result = Result.objects.filter(test=test).first()
 
             return Response({
