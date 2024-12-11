@@ -52,7 +52,7 @@ class TestViewSet(ModelViewSet):
 
         serializer = TestSubmissionSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        if test.test_type == 2:
+        if test.test_type != 2:
             selected_answers = serializer.validated_data['answers']
         else:
             selected_answers = serializer.validated_data['answers_colors']
