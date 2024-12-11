@@ -87,6 +87,7 @@ class Answer(Model):
     title = CharField(max_length=550, null=True, blank=True, verbose_name="Название")
     image = ImageField(upload_to='answer_images/', null=True, blank=True, verbose_name="Картинка")
     points = IntegerField(default=0, verbose_name="Количество баллов")
+    ideal_score = IntegerField(default=5, null=True, blank=True)
 
     def __str__(self):
         return f"{self.title}"
