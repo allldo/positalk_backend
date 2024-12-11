@@ -55,15 +55,34 @@ class TestViewSet(ModelViewSet):
         if test.test_type != 2:
             selected_answers = serializer.validated_data['answers']
         else:
-            selected_answers = serializer.validated_data['answers_colors']
+            colors_order = [1, 2, 3, 4, 5, 6, 7, 8]
+            answers_colors = serializer.validated_data['answers_colors']
+            first_choice = answers_colors[0]  # Первый выбор
+            second_choice = answers_colors[1]  # Второй выбор
+
+            # Расчёт суммарного отклонения
+            color_scores = {color: 0 for color in colors_order}
+
+            for i, color in enumerate(first_choice):
+                color_scores[color] += i + 1  # Баллы из первого выбора
+
+            for i, color in enumerate(second_choice):
+                color_scores[color] += i + 1  # Баллы из второго выбора
+
+            # Пример расчёта (можете добавить формулу для CO и BK):
+            CO = sum(abs(color_scores[color] - (colors_order.index(color) + 1)) for color in colors_order)
+            VK = (18 - color_scores[3] - color_scores[7]) / (18 - color_scores[5] - color_scores[1])
+            anxiety_score = 0
+            for color1, color2 in zip(first_choice, second_choice):
+                anxiety_score += abs(color1 - color2)
             result = Result.objects.filter(test=test).first()
             return Response({
                 "description": result.description,
                 "test_name": test.title,
                 "image": f"{settings.CURRENT_DOMAIN}{result.test.full_image.url}",
-                "vegetative": 1,
-                "deviation": 1,
-                "anxiety": 1
+                "vegetative": VK,
+                "deviation": CO,
+                "anxiety": anxiety_score
             }, status=HTTP_200_OK)
         from collections import Counter
         answer_counts = Counter(selected_answers)
