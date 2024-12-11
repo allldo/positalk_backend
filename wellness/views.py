@@ -74,13 +74,13 @@ class TestViewSet(ModelViewSet):
 
                     if color_id not in color_scores:
                         color_scores[color_id] = 0
-                    color_scores[color_id] = [color_points, ideal_points]
+                    color_scores[color_id] = {'points': color_points, 'ideal_score': ideal_points}
 
                 CO = 0
-                for color_id, score in color_scores.items():
-                    CO += abs(score[0] - score[1])
-            VK = (18 - color_scores.get(3, 0)[0] - color_scores.get(7, 0))[0] / (
-                        18 - color_scores.get(5, 0)[0] - color_scores.get(1, 0))[0]
+                for color_id, scores in color_scores.items():
+                    CO += abs(scores['points'] - scores['ideal_score'])
+            VK = (18 - color_scores.get(3, {'points': 0})['points'] - color_scores.get(7, {'points': 0})['points']) / \
+                 (18 - color_scores.get(5, {'points': 0})['points'] - color_scores.get(1, {'points': 0})['points'])
 
             anxiety_score = 0
             for color1, color2 in zip(first_choice, second_choice):
