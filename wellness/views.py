@@ -57,25 +57,30 @@ class TestViewSet(ModelViewSet):
         else:
             colors_order = [1, 2, 3, 4, 5, 6, 7, 8]
             answers_colors = serializer.validated_data['answers_colors']
-            first_choice = answers_colors[0]  # Первый выбор
-            second_choice = answers_colors[1]  # Второй выбор
+            first_choice = answers_colors[0]
+            second_choice = answers_colors[1]
 
-            # Расчёт суммарного отклонения
-            color_scores = {color: 0 for color in colors_order}
+            color_scores = {}
 
-            for i, color in enumerate(first_choice):
-                color_scores[color] += i + 1  # Баллы из первого выбора
+            for i, color_data in enumerate(first_choice + second_choice):
+                color_id = color_data['answer_id']
+                color_points = color_data['points']
 
-            for i, color in enumerate(second_choice):
-                color_scores[color] += i + 1  # Баллы из второго выбора
+                if color_id not in color_scores:
+                    color_scores[color_id] = 0
+                color_scores[color_id] += color_points
 
-            # Пример расчёта (можете добавить формулу для CO и BK):
-            CO = sum(abs(color_scores[color] - (colors_order.index(color) + 1)) for color in colors_order)
-            VK = (18 - color_scores[3] - color_scores[7]) / (18 - color_scores[5] - color_scores[1])
+            CO = sum(
+                abs(color_scores.get(color, 0) - color_data['points']) for color, color_data in colors_order.items())
+
+            VK = (18 - color_scores.get(3, 0) - color_scores.get(7, 0)) / (
+                        18 - color_scores.get(5, 0) - color_scores.get(1, 0))
+
             anxiety_score = 0
             for color1, color2 in zip(first_choice, second_choice):
-                anxiety_score += abs(color1 - color2)
+                anxiety_score += abs(color1['answer_id'] - color2['answer_id'])
             result = Result.objects.filter(test=test).first()
+
             return Response({
                 "description": result.description,
                 "test_name": test.title,
