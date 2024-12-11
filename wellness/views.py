@@ -91,7 +91,7 @@ class TestViewSet(ModelViewSet):
                 "description": result.description,
                 "test_name": test.title,
                 "image": f"{settings.CURRENT_DOMAIN}{result.test.full_image.url}",
-                "vegetative": VK,
+                "vegetative": round(VK, 2),
                 "deviation": CO,
                 "anxiety": anxiety_score
             }, status=HTTP_200_OK)
