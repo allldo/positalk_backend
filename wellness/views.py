@@ -62,27 +62,25 @@ class TestViewSet(ModelViewSet):
             color_scores = {}
 
             for choice_group in [first_choice, second_choice]:
-                print(choice_group)
                 for color_data in choice_group:
                     color_id = color_data['id']
 
                     try:
                         answer = Answer.objects.get(id=color_id)
                         color_points = answer.points
+                        ideal_points = answer.ideal_score
                     except Answer.DoesNotExist:
-                        color_points = 0
+                        color_points, ideal_points = 0, 0
 
                     if color_id not in color_scores:
                         color_scores[color_id] = 0
-                    color_scores[color_id] += color_points
+                    color_scores[color_id] = [color_points, ideal_points]
 
-            CO = 0
-            for color_id, score in color_scores.items():
-                ideal_score = 5
-                CO += abs(score - ideal_score)
-
-            VK = (18 - color_scores.get(3, 0) - color_scores.get(7, 0)) / (
-                        18 - color_scores.get(5, 0) - color_scores.get(1, 0))
+                CO = 0
+                for color_id, score in color_scores.items():
+                    CO += abs(score[0] - score[1])
+            VK = (18 - color_scores.get(3, 0)[0] - color_scores.get(7, 0))[0] / (
+                        18 - color_scores.get(5, 0)[0] - color_scores.get(1, 0))[0]
 
             anxiety_score = 0
             for color1, color2 in zip(first_choice, second_choice):
