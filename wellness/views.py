@@ -3,6 +3,7 @@ from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.generics import ListAPIView, get_object_or_404
 from rest_framework.response import Response
+from rest_framework.status import HTTP_200_OK
 from rest_framework.viewsets import ModelViewSet
 
 from wellness.filters import CaseInsensitiveSearchFilter
@@ -51,9 +52,15 @@ class TestViewSet(ModelViewSet):
 
         serializer = TestSubmissionSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-
-        selected_answers = serializer.validated_data['answers']
-
+        if test.type != 3:
+            selected_answers = serializer.validated_data['answers']
+        else:
+            selected_answers = serializer.validated_data['colors']
+            return Response({
+                "vegetative": 1,
+                "deviation": 1,
+                "anxiety": 1
+            }, status=HTTP_200_OK)
         from collections import Counter
         answer_counts = Counter(selected_answers)
 

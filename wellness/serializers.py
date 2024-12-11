@@ -62,9 +62,15 @@ class TestSubmissionSerializer(Serializer):
     test_slug = SlugField()
     answers = ListField(
         child=IntegerField(),
-        help_text="Список ID выбранных ответов"
+        help_text="Список ID выбранных ответов", allow_null=True, allow_empty=True
     )
-
+    colors = ListField(allow_null=True, allow_empty=True,
+            child=ListField(
+                child=IntegerField(),
+                help_text="Список ID выбранных ответов для группы"
+            ),
+            help_text="Список групп ответов, где каждая группа — это список ID выбранных ответов"
+        )
 
 class ResultSerializer(ModelSerializer):
     image = SerializerMethodField()
