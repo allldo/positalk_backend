@@ -56,18 +56,24 @@ class TestViewSet(ModelViewSet):
             selected_answers = serializer.validated_data['answers']
         else:
             answers_colors = serializer.validated_data['answers_colors']
-            first_choice = answers_colors[0]  # Первый выбор
-            second_choice = answers_colors[1]  # Второй выбор
+            first_choice = answers_colors[0]
+            second_choice = answers_colors[1]
 
             color_scores = {}
 
-            for i, color_data in enumerate(first_choice + second_choice):
-                color_id = color_data['answer_id']
-                color_points = color_data['points']
+            for choice_group in [first_choice, second_choice]:
+                for color_data in choice_group:
+                    color_id = color_data['answer_id']
 
-                if color_id not in color_scores:
-                    color_scores[color_id] = 0
-                color_scores[color_id] += color_points
+                    try:
+                        answer = Answer.objects.get(id=color_id)
+                        color_points = answer.points
+                    except Answer.DoesNotExist:
+                        color_points = 0
+
+                    if color_id not in color_scores:
+                        color_scores[color_id] = 0
+                    color_scores[color_id] += color_points
 
             CO = 0
             for color_id, score in color_scores.items():
