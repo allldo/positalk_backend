@@ -1,9 +1,10 @@
 import random
 from django.contrib.auth.models import AbstractUser
-from django.db.models import Model, CharField, DateTimeField, BooleanField, EmailField, ForeignKey, CASCADE
+from django.db.models import Model, CharField, DateTimeField, BooleanField, EmailField, ForeignKey, CASCADE, SET_NULL
 from django.utils.timezone import now, timedelta
 
 from cabinet.managers import UserManager
+from wellness.models import Feeling, Relation, WorkStudy, LifeEvent, CoupleTherapy
 
 
 class CustomUser(AbstractUser):
@@ -30,6 +31,7 @@ class PhoneVerification(Model):
 
 class Survey(Model):
     user = ForeignKey(CustomUser, on_delete=CASCADE, related_name="profile")
+    therapy_type = CharField(max_length=225, null=True, blank=True)
     nickname = CharField(max_length=225, null=True, blank=True)
     had_therapy_before = BooleanField(default=False)
     date_of_birth = CharField(max_length=128, null=True, blank=True)
@@ -39,3 +41,7 @@ class Survey(Model):
     relation = CharField(max_length=225, null=True, blank=True)
     work_study = CharField(max_length=225, null=True, blank=True)
     life_event = CharField(max_length=225, null=True, blank=True)
+    couple_therapy = CharField(max_length=225, null=True, blank=True)
+
+    def __str__(self):
+        return str(self.id)

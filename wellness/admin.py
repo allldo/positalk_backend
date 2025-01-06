@@ -2,7 +2,8 @@ from django.contrib import admin
 from django.db.models import Q
 from django.forms import ModelForm, ModelMultipleChoiceField
 
-from wellness.models import Article, Question, Answer, Test, Block, Result
+from wellness.models import Article, Question, Answer, Test, Block, Result, PreferablePrice, CoupleTherapy, Feeling, \
+    Relation, WorkStudy, LifeEvent
 
 # admin.site.register(Test)
 admin.site.register(Result)
@@ -77,3 +78,10 @@ class TestAdmin(admin.ModelAdmin):
     exclude = ['questions']
 
 admin.site.register(Test, TestAdmin)
+
+admin.site.register(Feeling)
+admin.site.register(Relation)
+admin.site.register(WorkStudy)
+admin.site.register(LifeEvent)
+admin.site.register(CoupleTherapy)
+admin.site.register(PreferablePrice)

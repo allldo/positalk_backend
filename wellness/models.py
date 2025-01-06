@@ -115,3 +115,48 @@ class Block(Model):
 
     def __str__(self):
         return self.title
+
+
+class Feeling(Model):
+    name = CharField(max_length=255)
+
+    def __str__(self):
+        return self.name
+
+
+class Relation(Model):
+    name = CharField(max_length=255)
+
+    def __str__(self):
+        return self.name
+
+
+class WorkStudy(Model):
+    name = CharField(max_length=255)
+
+    def __str__(self):
+        return self.name
+
+
+class LifeEvent(Model):
+    name = CharField(max_length=255)
+
+    def __str__(self):
+        return self.name
+
+
+class CoupleTherapy(Model):
+    name = CharField(max_length=255)
+
+    def __str__(self):
+        return self.name
+
+
+class PreferablePrice(Model):
+    price = IntegerField(default=0)
+    experience = CharField(max_length=225, null=True, blank=True)
+    description = TextField()
+    specialists_num = IntegerField(default=0)
+
+    def __str__(self):
+        return f"{self.price}Р и {self.specialists_num} специалистов"

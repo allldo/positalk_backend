@@ -5,8 +5,9 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from cabinet.models import PhoneVerification
-from cabinet.serializers import PhoneSerializer, CodeVerificationSerializer
+from cabinet.serializers import PhoneSerializer, CodeVerificationSerializer, SurveyInfoSerializer
 from cabinet.services import send_sms
+from wellness.models import Feeling, Relation, WorkStudy, LifeEvent, CoupleTherapy, PreferablePrice
 
 User = get_user_model()
 
@@ -16,7 +17,7 @@ class SendCodeView(APIView):
         serializer.is_valid(raise_exception=True)
         phone = serializer.validated_data['phone']
         code = PhoneVerification.generate_code()
-
+        PhoneVerification.objects.filter(phone=phone).update(is_active=False)
         PhoneVerification.objects.create(phone=phone, code=code)
         send_sms(phone, code)
         return Response({"message": code}, status=status.HTTP_200_OK)
@@ -51,3 +52,18 @@ class VerifyCodeView(APIView):
                 "phone": user.phone_number,
             }
         }, status=status.HTTP_200_OK)
+
+
+class SurveyInfoView(APIView):
+    def get(self, request):
+        data = {
+            "feeling": Feeling.objects.all(),
+            "relation": Relation.objects.all(),
+            "work_study": WorkStudy.objects.all(),
+            "life_event": LifeEvent.objects.all(),
+            "couple_therapy": CoupleTherapy.objects.all(),
+            "preferable_price": PreferablePrice.objects.all(),
+        }
+        serializer = SurveyInfoSerializer(data)
+        return Response(serializer.data, status=200)
+
