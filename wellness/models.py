@@ -155,8 +155,9 @@ class CoupleTherapy(Model):
 class PreferablePrice(Model):
     price = IntegerField(default=0)
     experience = CharField(max_length=225, null=True, blank=True)
-    description = TextField()
+    description = TextField(blank=True)
     specialists_num = IntegerField(default=0)
+    therapy_type = CharField(max_length=225, null=True, blank=True)
 
     def __str__(self):
         return f"{self.price}Р и {self.specialists_num} специалистов"

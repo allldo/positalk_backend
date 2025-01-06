@@ -1,6 +1,7 @@
 import random
 from django.contrib.auth.models import AbstractUser
-from django.db.models import Model, CharField, DateTimeField, BooleanField, EmailField, ForeignKey, CASCADE, SET_NULL
+from django.db.models import Model, CharField, DateTimeField, BooleanField, EmailField, ForeignKey, CASCADE, SET_NULL, \
+    ManyToManyField
 from django.utils.timezone import now, timedelta
 
 from cabinet.managers import UserManager
@@ -13,6 +14,8 @@ class CustomUser(AbstractUser):
     objects = UserManager()
     phone_number = CharField(max_length=30,unique=True, null=True, blank=True, verbose_name='Номер телефона')
     USERNAME_FIELD = 'phone_number'
+    def __str__(self):
+        return self.phone_number if self.phone_number else str(self.id)
 
 
 class PhoneVerification(Model):
@@ -37,11 +40,12 @@ class Survey(Model):
     date_of_birth = CharField(max_length=128, null=True, blank=True)
     email = EmailField(unique=True, null=True, blank=True)
     promo_code = CharField(max_length=225, null=True, blank=True)
-    feeling = CharField(max_length=225, null=True, blank=True)
-    relation = CharField(max_length=225, null=True, blank=True)
-    work_study = CharField(max_length=225, null=True, blank=True)
-    life_event = CharField(max_length=225, null=True, blank=True)
-    couple_therapy = CharField(max_length=225, null=True, blank=True)
+    feeling = ManyToManyField("wellness.Feeling", blank=True, related_name='feeling')
+    relation = ManyToManyField("wellness.Relation", blank=True, related_name='relation')
+    work_study = ManyToManyField("wellness.WorkStudy", blank=True, related_name='work_study')
+    life_event = ManyToManyField("wellness.LifeEvent", blank=True, related_name='life_event')
+    couple_therapy = ManyToManyField("wellness.CoupleTherapy", blank=True, related_name='couple_therapy')
+    preferable_price = ForeignKey("wellness.PreferablePrice", on_delete=SET_NULL, null=True, blank=True)
 
     def __str__(self):
         return str(self.id)
