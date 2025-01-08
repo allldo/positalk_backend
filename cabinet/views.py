@@ -55,6 +55,7 @@ class VerifyCodeView(APIView):
             "user": {
                 "id": user.id,
                 "phone": user.phone_number,
+                "has_survey": user.profile.exists()
             }
         }, status=status.HTTP_200_OK)
 
