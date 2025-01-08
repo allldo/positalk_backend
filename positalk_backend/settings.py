@@ -27,7 +27,7 @@ SECRET_KEY =  env('SECRET_KEY')
 
 
 DEBUG = env('DEBUG')
-
+SMS_KEY = env('SMS_KEY')
 ALLOWED_HOSTS = ["*"]
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'debug_toolbar',
     'rest_framework_simplejwt',
     'corsheaders',
     'drf_spectacular',

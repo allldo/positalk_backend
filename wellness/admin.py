@@ -3,7 +3,7 @@ from django.db.models import Q
 from django.forms import ModelForm, ModelMultipleChoiceField
 
 from wellness.models import Article, Question, Answer, Test, Block, Result, PreferablePrice, CoupleTherapy, Feeling, \
-    Relation, WorkStudy, LifeEvent
+    Relation, WorkStudy, LifeEvent, PsychoTopic
 
 # admin.site.register(Test)
 admin.site.register(Result)
@@ -85,3 +85,4 @@ admin.site.register(WorkStudy)
 admin.site.register(LifeEvent)
 admin.site.register(CoupleTherapy)
 admin.site.register(PreferablePrice)
+admin.site.register(PsychoTopic)

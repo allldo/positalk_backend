@@ -161,3 +161,10 @@ class PreferablePrice(Model):
 
     def __str__(self):
         return f"{self.price}Р и {self.specialists_num} специалистов"
+
+
+class PsychoTopic(Model):
+    name = CharField(max_length=255)
+
+    def __str__(self):
+        return self.name

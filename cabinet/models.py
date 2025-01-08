@@ -1,7 +1,9 @@
 import random
+from random import choice
+
 from django.contrib.auth.models import AbstractUser
 from django.db.models import Model, CharField, DateTimeField, BooleanField, EmailField, ForeignKey, CASCADE, SET_NULL, \
-    ManyToManyField
+    ManyToManyField, PositiveIntegerField, TextField, ImageField
 from django.utils.timezone import now, timedelta
 
 from cabinet.managers import UserManager
@@ -10,10 +12,15 @@ from wellness.models import Feeling, Relation, WorkStudy, LifeEvent, CoupleThera
 
 class CustomUser(AbstractUser):
     # REQUIRED_FIELDS = []
+    USER_TYPE_CHOICES = [
+        ('user', 'user'),
+        ('psychologist', 'psychologist'),
+    ]
     username = None
     objects = UserManager()
     phone_number = CharField(max_length=30,unique=True, null=True, blank=True, verbose_name='Номер телефона')
     USERNAME_FIELD = 'phone_number'
+    user_type = CharField(max_length=225, choices=USER_TYPE_CHOICES, default='psychologist')
     def __str__(self):
         return self.phone_number if self.phone_number else str(self.id)
 
@@ -46,6 +53,26 @@ class Survey(Model):
     life_event = ManyToManyField("wellness.LifeEvent", blank=True, related_name='life_event')
     couple_therapy = ManyToManyField("wellness.CoupleTherapy", blank=True, related_name='couple_therapy')
     preferable_price = ForeignKey("wellness.PreferablePrice", on_delete=SET_NULL, null=True, blank=True)
+
+    def __str__(self):
+        return str(self.id)
+
+
+class PsychologistSurvey(Model):
+    SEX_CHOICES = [
+        ('woman', 'woman'),
+        ('man', 'man')
+    ]
+
+    photo = ImageField(upload_to='psycho_avatars/', null=True, blank=True)
+    user = ForeignKey(CustomUser, on_delete=CASCADE, related_name="psycho_profile")
+    education = TextField()
+    name = CharField(max_length=225)
+    age = PositiveIntegerField
+    experience = PositiveIntegerField()
+    psycho_topic = ManyToManyField("wellness.PsychoTopic")
+    description = TextField()
+    sex = CharField(max_length=125, choices=SEX_CHOICES, default='man')
 
     def __str__(self):
         return str(self.id)
