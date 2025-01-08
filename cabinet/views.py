@@ -1,12 +1,11 @@
 from django.contrib.auth import get_user_model
-from django.views.generic import CreateView
 from rest_framework import status
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.authtoken.models import Token
 from rest_framework.generics import CreateAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework_simplejwt.tokens import RefreshToken
 
 from cabinet.models import PhoneVerification
 from cabinet.serializers import PhoneSerializer, CodeVerificationSerializer, SurveyInfoSerializer, \
@@ -47,11 +46,10 @@ class VerifyCodeView(APIView):
         user, created = User.objects.get_or_create(phone_number=phone)
         verification.is_active = False
         verification.save()
-        refresh = RefreshToken.for_user(user)
+        token, created = Token.objects.get_or_create(user=user)
 
         return Response({
-            "refresh": str(refresh),
-            "access": str(refresh.access_token),
+            "token": str(token),
             "user": {
                 "id": user.id,
                 "phone": user.phone_number,
@@ -77,7 +75,7 @@ class SurveyInfoView(APIView):
 class SurveySubmitView(CreateAPIView):
     serializer_class = SurveySubmitSerializer
     permission_classes = [IsAuthenticated]
-    authentication_classes = [JWTAuthentication]
+    authentication_classes = [TokenAuthentication]
 
     def create(self, request, *args, **kwargs):
         serializer = SurveySubmitSerializer(data=request.data, context={'request': request})

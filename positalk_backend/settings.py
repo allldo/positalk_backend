@@ -46,7 +46,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'debug_toolbar',
-    'rest_framework_simplejwt',
+    'rest_framework.authtoken',
     'corsheaders',
     'drf_spectacular',
     'tinymce',
@@ -70,7 +70,7 @@ AUTH_USER_MODEL = "cabinet.CustomUser"
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
     ),
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }

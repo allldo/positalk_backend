@@ -1,9 +1,9 @@
 from itertools import chain
 
 from django.db.models import Prefetch
+from rest_framework.authentication import TokenAuthentication
 from rest_framework.generics import ListAPIView
 from rest_framework.permissions import IsAuthenticated
-from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from cabinet.models import PsychologistSurvey, Survey
 from psy_store.models import GiftSession
@@ -19,7 +19,7 @@ class PsychologistsListAPIView(ListAPIView):
     serializer_class = PsychologistsSurveySerializer
     queryset = PsychologistSurvey.objects.prefetch_related('psycho_topic')
     permission_classes = [IsAuthenticated]
-    authentication_classes = [JWTAuthentication]
+    authentication_classes = [TokenAuthentication]
 
     def get_queryset(self):
         user = self.request.user
