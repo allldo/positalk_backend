@@ -11,8 +11,8 @@ class Article(Model):
     ]
     title = CharField(max_length=125, verbose_name="Название")
     author = CharField(max_length=125, verbose_name="Автор")
-    slug = SlugField(max_length=275, unique=True, blank=True)
-    date_created = DateTimeField(auto_now_add=True)
+    slug = SlugField(max_length=275, unique=True, blank=True, verbose_name="Слаг")
+    date_created = DateTimeField(auto_now_add=True, verbose_name="Дата создания")
     description = HTMLField(verbose_name="Описание")
     cover = ImageField(upload_to='article_covers/', null=True, blank=True , verbose_name="Обложка")
     full_image = ImageField(upload_to='article_full_images/', null=True, blank=True , verbose_name="Полная картинка")
@@ -40,6 +40,7 @@ class Article(Model):
 
     def __str__(self):
         return self.title
+
 
 class Test(Model):
     CALCULATION_CHOICES = [
@@ -81,7 +82,9 @@ class Question(Model):
 
     def __str__(self):
         return f"{self.title}"
-
+    class Meta:
+        verbose_name = "Вопрос"
+        verbose_name_plural = "Вопросы"
 
 class Answer(Model):
     title = CharField(max_length=550, null=True, blank=True, verbose_name="Название")
@@ -91,7 +94,9 @@ class Answer(Model):
 
     def __str__(self):
         return f"{self.title}"
-
+    class Meta:
+        verbose_name = "Ответ"
+        verbose_name_plural = "Ответы"
 
 class Result(Model):
     test = ForeignKey("Test", on_delete=CASCADE, verbose_name="Тест")
@@ -116,55 +121,87 @@ class Block(Model):
     def __str__(self):
         return self.title
 
+    class Meta:
+        verbose_name = "Блок"
+        verbose_name_plural = "Блоки"
+
 
 class Feeling(Model):
-    name = CharField(max_length=255)
+    name = CharField(max_length=255, verbose_name="Название")
 
     def __str__(self):
         return self.name
+
+    class Meta:
+        verbose_name = "Мое состояние"
+        verbose_name_plural = "Мое состояние"
 
 
 class Relation(Model):
-    name = CharField(max_length=255)
+    name = CharField(max_length=255, verbose_name="Название")
 
     def __str__(self):
         return self.name
+
+    class Meta:
+        verbose_name = "Отношения"
+        verbose_name_plural = "Отношения"
 
 
 class WorkStudy(Model):
-    name = CharField(max_length=255)
+    name = CharField(max_length=255, verbose_name="Название")
 
     def __str__(self):
         return self.name
+
+    class Meta:
+        verbose_name = "Учеба и работа"
+        verbose_name_plural = "Учеба и работа"
 
 
 class LifeEvent(Model):
-    name = CharField(max_length=255)
+    name = CharField(max_length=255, verbose_name="Название")
 
     def __str__(self):
         return self.name
+
+    class Meta:
+        verbose_name = "События в жизни"
+        verbose_name_plural = "События в жизни"
 
 
 class CoupleTherapy(Model):
-    name = CharField(max_length=255)
+    name = CharField(max_length=255, verbose_name="Название")
 
     def __str__(self):
         return self.name
 
+    class Meta:
+        verbose_name = "Парная терапия"
+        verbose_name_plural = "Парная терапия"
+
 
 class PreferablePrice(Model):
-    price = IntegerField(default=0)
-    experience = CharField(max_length=225, null=True, blank=True)
-    description = TextField(blank=True)
-    specialists_num = IntegerField(default=0)
-    therapy_type = CharField(max_length=225, null=True, blank=True)
+    price = IntegerField(default=0, verbose_name="Цена")
+    experience = CharField(max_length=225, null=True, blank=True, verbose_name="Опыт")
+    description = TextField(blank=True, verbose_name="Описание")
+    specialists_num = IntegerField(default=0, verbose_name="Количество специалистов")
+    therapy_type = CharField(max_length=225, null=True, blank=True, verbose_name="Тип терапии")
 
     def __str__(self):
         return f"{self.price}Р и {self.specialists_num} специалистов"
 
+    class Meta:
+        verbose_name = "Предпочитаемая цена"
+        verbose_name_plural = "Предпочитаемые цены"
 
 class PsychoTopic(Model):
-    name = CharField(max_length=255)
+    name = CharField(max_length=255, verbose_name="Название")
 
     def __str__(self):
         return self.name
+
+
+    class Meta:
+        verbose_name = "Психологическая тема"
+        verbose_name_plural = "Психологическые темы"
