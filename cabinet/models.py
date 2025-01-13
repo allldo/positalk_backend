@@ -46,7 +46,7 @@ class Education(Model):
         return str(self.id)
 
     class Meta:
-        ordering = ['year']
+        ordering = ['-year']
 
 
 class Survey(Model):
