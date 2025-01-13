@@ -3,11 +3,10 @@ from random import choice
 
 from django.contrib.auth.models import AbstractUser
 from django.db.models import Model, CharField, DateTimeField, BooleanField, EmailField, ForeignKey, CASCADE, SET_NULL, \
-    ManyToManyField, PositiveIntegerField, TextField, ImageField
+    ManyToManyField, PositiveIntegerField, TextField, ImageField, DecimalField
 from django.utils.timezone import now, timedelta
 
 from cabinet.managers import UserManager
-from wellness.models import Feeling, Relation, WorkStudy, LifeEvent, CoupleTherapy
 
 
 class CustomUser(AbstractUser):
@@ -20,7 +19,7 @@ class CustomUser(AbstractUser):
     objects = UserManager()
     phone_number = CharField(max_length=30,unique=True, null=True, blank=True, verbose_name='Номер телефона')
     USERNAME_FIELD = 'phone_number'
-    user_type = CharField(max_length=225, choices=USER_TYPE_CHOICES, default='psychologist')
+    user_type = CharField(max_length=225, choices=USER_TYPE_CHOICES, default='user')
     def __str__(self):
         return self.phone_number if self.phone_number else str(self.id)
 
@@ -37,6 +36,14 @@ class PhoneVerification(Model):
     @staticmethod
     def generate_code():
         return str(random.randint(100000, 999999))
+
+
+class Education(Model):
+    year = PositiveIntegerField(default=2000)
+    text = TextField()
+
+    def __str__(self):
+        return str(self.id)
 
 
 class Survey(Model):
@@ -66,10 +73,12 @@ class PsychologistSurvey(Model):
 
     photo = ImageField(upload_to='psycho_avatars/', null=True, blank=True)
     user = ForeignKey(CustomUser, on_delete=CASCADE, related_name="psycho_profile")
-    education = TextField()
-    name = CharField(max_length=225)
-    age = PositiveIntegerField
-    experience = PositiveIntegerField()
+    education_psychologist = ForeignKey(Education, on_delete=SET_NULL, null=True, blank=True)
+    name = CharField(max_length=225, null=True, blank=True)
+    age = PositiveIntegerField(default=18, null=True, blank=True)
+    label = CharField(max_length=225, null=True, blank=True)
+    experience = PositiveIntegerField(null=True, blank=True)
+    rating = DecimalField(max_digits=2,decimal_places=1, null=True, blank=True)
     psycho_topic = ManyToManyField("wellness.PsychoTopic")
     description = TextField()
     sex = CharField(max_length=125, choices=SEX_CHOICES, default='man')

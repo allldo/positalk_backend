@@ -25,7 +25,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY =  env('SECRET_KEY')
 
-
+API_PHONE_NUMBER =  env('API_PHONE_NUMBER')
 DEBUG = env('DEBUG')
 SMS_KEY = env('SMS_KEY')
 ALLOWED_HOSTS = ["*"]
@@ -52,7 +52,8 @@ INSTALLED_APPS = [
     'tinymce',
     'cabinet',
     'psy_store',
-    'wellness'
+    'wellness',
+    'sales'
 ]
 
 MIDDLEWARE = [

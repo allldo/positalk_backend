@@ -1,7 +1,8 @@
+from django.db.models import Model
 from rest_framework.fields import CharField, SerializerMethodField
 from rest_framework.serializers import Serializer, ModelSerializer
 
-from cabinet.models import Survey
+from cabinet.models import Survey, Education
 from wellness.models import Feeling, Relation, WorkStudy, LifeEvent, CoupleTherapy, PreferablePrice
 
 
@@ -49,6 +50,7 @@ class PreferablePriceSerializer(ModelSerializer):
         fields = ['id', 'price', 'experience', 'description', 'specialists_num', 'therapy_type']
 
 
+
 class SurveyInfoSerializer(Serializer):
     feeling = FeelingSerializer(many=True, read_only=True)
     relation = RelationSerializer(many=True, read_only=True)
@@ -66,6 +68,7 @@ class SurveyInfoSerializer(Serializer):
             "couple_therapy": CoupleTherapySerializer(instance.get("couple_therapy"), many=True).data,
             "preferable_price": PreferablePriceSerializer(instance.get("preferable_price"), many=True).data,
         }
+
 
 class SurveySubmitSerializer(ModelSerializer):
     class Meta:
@@ -95,3 +98,4 @@ class SurveySubmitSerializer(ModelSerializer):
             survey.couple_therapy.set(couple_therapy_data)
 
         return survey
+
