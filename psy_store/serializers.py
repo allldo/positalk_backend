@@ -23,3 +23,7 @@ class PsychologistsSurveySerializer(ModelSerializer):
     class Meta:
         model = PsychologistSurvey
         fields = "__all__"
+
+    def get_education_psychologist(self, obj):
+        education = obj.education_psychologist.all().order_by('year')
+        return EducationSerializer(education, many=True).data
