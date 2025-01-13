@@ -46,6 +46,20 @@ class PsychologistsListAPIView(ListAPIView):
         if not user_topics:
             return PsychologistSurvey.objects.none()
 
-        return PsychologistSurvey.objects.filter(
+        gender = self.request.query_params.get('gender')
+        age_min = self.request.query_params.get('age_min')
+        age_max = self.request.query_params.get('age_max')
+        queryset = PsychologistSurvey.objects.filter(
             psycho_topic__name__in=user_topics
         ).distinct()
+
+        if gender:
+            queryset = queryset.filter(gender=gender)
+
+        if age_min:
+            queryset = queryset.filter(age__gte=int(age_min))
+
+        if age_max:
+            queryset = queryset.filter(age__lte=int(age_max))
+
+        return queryset
