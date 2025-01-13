@@ -45,6 +45,9 @@ class Education(Model):
     def __str__(self):
         return str(self.id)
 
+    class Meta:
+        ordering = ['year']
+
 
 class Survey(Model):
     user = ForeignKey(CustomUser, on_delete=CASCADE, related_name="profile")
