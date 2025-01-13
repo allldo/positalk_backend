@@ -73,7 +73,7 @@ class PsychologistSurvey(Model):
 
     photo = ImageField(upload_to='psycho_avatars/', null=True, blank=True)
     user = ForeignKey(CustomUser, on_delete=CASCADE, related_name="psycho_profile")
-    education_psychologist = ForeignKey(Education, on_delete=SET_NULL, null=True, blank=True)
+    education_psychologist = ManyToManyField(Education, blank=True)
     name = CharField(max_length=225, null=True, blank=True)
     age = PositiveIntegerField(default=18, null=True, blank=True)
     label = CharField(max_length=225, null=True, blank=True)

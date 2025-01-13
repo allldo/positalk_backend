@@ -18,7 +18,7 @@ class EducationSerializer(ModelSerializer):
 
 class PsychologistsSurveySerializer(ModelSerializer):
     psycho_topic = StringRelatedField(many=True)
-    education_psychologist = EducationSerializer(many=False)
+    education_psychologist = EducationSerializer(many=True)
 
     class Meta:
         model = PsychologistSurvey
