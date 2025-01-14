@@ -30,6 +30,7 @@ prompt_toolkit==3.0.48
 PyJWT==2.10.1
 python-dateutil==2.9.0.post0
 pytils==0.4.1
+pytz==2024.2
 PyYAML==6.0.2
 redis==5.2.0
 referencing==0.35.1

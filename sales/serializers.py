@@ -5,6 +5,7 @@ from django.utils.datetime_safe import datetime
 from rest_framework.exceptions import ValidationError
 from rest_framework.fields import IntegerField, CharField, DecimalField
 from rest_framework.serializers import Serializer
+from pytz import timezone
 
 
 class LinkPaymentSerializer(Serializer):
@@ -14,7 +15,8 @@ class LinkPaymentSerializer(Serializer):
     price = DecimalField(max_digits=10, decimal_places=2)
 
     def create(self, validated_data):
-        link_expired_time = datetime.now() + timedelta(minutes=30)
+        tz = timezone("Europe/Moscow")
+        link_expired_time = datetime.now(tz=tz) + timedelta(minutes=30)
         transaction_id = str(uuid.uuid4())
         data = {
             "do": "link",
