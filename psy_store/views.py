@@ -32,7 +32,6 @@ class PsychologistsListAPIView(ListAPIView):
             Prefetch('life_event'),
             Prefetch('couple_therapy'),
         ).get(id=user_survey.id)
-
         user_topics = set(
             chain(
                 user_survey.feeling.all().values_list('name', flat=True),
@@ -45,7 +44,6 @@ class PsychologistsListAPIView(ListAPIView):
 
         if not user_topics:
             return PsychologistSurvey.objects.none()
-
         gender = self.request.query_params.get('gender')
         age_min = self.request.query_params.get('age_min')
         age_max = self.request.query_params.get('age_max')

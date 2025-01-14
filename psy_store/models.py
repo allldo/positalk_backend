@@ -1,4 +1,4 @@
-from django.db.models import Model, PositiveIntegerField, CharField
+from django.db.models import Model, PositiveIntegerField, CharField, TextField
 
 
 class GiftSession(Model):
@@ -8,3 +8,10 @@ class GiftSession(Model):
 
     def __str__(self):
         return f"{self.id} gift with price {self.price} rubles"
+
+
+# class Service(Model):
+#     title = CharField()
+#     description = TextField()
+#     price = PositiveIntegerField()
+#     duration = PositiveIntegerField()
