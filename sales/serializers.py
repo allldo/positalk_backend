@@ -35,6 +35,6 @@ class LinkPaymentSerializer(Serializer):
 
         try:
             response = requests.get('https://demo.payform.ru/', params=data, headers=headers, timeout=5)
-            return {"link": response.text}
+            return {"link": response.text, "link_expired_time": link_expired_time.strftime("%Y-%m-%d %H:%M")}
         except requests.RequestException as e:
             raise ValidationError(f"Ошибка при генерации ссылки: {str(e)}")
