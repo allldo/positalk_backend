@@ -23,7 +23,7 @@ class SendCodeView(APIView):
         code = PhoneVerification.generate_code()
         PhoneVerification.objects.filter(phone=phone).update(is_active=False)
         PhoneVerification.objects.create(phone=phone, code=code)
-        send_sms(phone, code)
+        # send_sms(phone, code)
         return Response({"message": code}, status=status.HTTP_200_OK)
         # return Response({"message": "Код отправлен!"}, status=status.HTTP_200_OK)
 

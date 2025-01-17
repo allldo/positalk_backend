@@ -18,6 +18,10 @@ class LinkPaymentSerializer(Serializer):
         tz = timezone("Europe/Moscow")
         link_expired_time = datetime.now(tz=tz) + timedelta(minutes=30)
         transaction_id = str(uuid.uuid4())
+        # sys
+        # urlNotification
+        # urlSuccess
+        # urlReturn
         data = {
             "do": "link",
             "callbackType": "json",
