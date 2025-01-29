@@ -76,7 +76,7 @@ class Test(Model):
 
 
 class Question(Model):
-    title = CharField(max_length=550, null=True, blank=True, verbose_name="Название")
+    title = HTMLField(null=True, blank=True, verbose_name="Название")
     image = ImageField(upload_to='question_images/', null=True, blank=True, verbose_name="Картинка")
     answers = ManyToManyField("Answer", blank=True, verbose_name="Ответы")
 
