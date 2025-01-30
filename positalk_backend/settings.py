@@ -37,7 +37,7 @@ CSRF_TRUSTED_ORIGINS = ['https://backend.xn--g1acgdmcd1a.xn--p1ai']
 CORS_ALLOW_HEADERS = list(default_headers) + [
      'Access-Control-Allow-Origin',
 ]
-CURRENT_DOMAIN = "http://195.133.77.136:8000"
+CURRENT_DOMAIN = "https://backend.xn--g1acgdmcd1a.xn--p1ai"
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
