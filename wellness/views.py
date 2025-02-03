@@ -124,7 +124,7 @@ class TestViewSet(ModelViewSet):
             base_description = result.description
 
             user_answers = Answer.objects.filter(id__in=selected_answers)
-            user_answers_text = "\n".join([answer.title for answer in user_answers])
+            user_answers_text = "\n".join([answer.description for answer in user_answers])
 
             final_description = f"{base_description}\n\nОтветы пользователя:\n{user_answers_text}"
 

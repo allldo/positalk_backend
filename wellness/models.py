@@ -94,6 +94,7 @@ class Question(Model):
 
 class Answer(Model):
     title = CharField(max_length=550, null=True, blank=True, verbose_name="Название")
+    description = HTMLField(blank=True)
     image = ImageField(upload_to='answer_images/', null=True, blank=True, verbose_name="Картинка")
     points = IntegerField(default=0, verbose_name="Количество баллов")
     ideal_score = IntegerField(default=5, null=True, blank=True)
