@@ -30,22 +30,28 @@ class AnswerAdmin(admin.ModelAdmin):
     def has_module_permission(self, request):
         return False
 
+class ArticleInline(admin.StackedInline):
+    model = Article.body.through
+    extra = 1
+
 class ArticleAdminForm(ModelForm):
+
     class Meta:
         model = Article
-        fields = "__all__"
+        exclude = ['body']
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if self.instance and self.instance.pk:
-            self.fields['body'].queryset = Block.objects.filter(
-                Q(articles=self.instance) | Q(articles=None)
-            ).distinct()
-        else:
-            self.fields['body'].queryset = Block.objects.filter(articles=None)
+    # def __init__(self, *args, **kwargs):
+    #     super().__init__(*args, **kwargs)
+    #     if self.instance and self.instance.pk:
+    #         self.fields['body'].queryset = Block.objects.filter(
+    #             Q(articles=self.instance) | Q(articles=None)
+    #         ).distinct()
+    #     else:
+    #         self.fields['body'].queryset = Block.objects.filter(articles=None)
 
 class ArticleAdmin(admin.ModelAdmin):
     form = ArticleAdminForm
+    inlines = [ArticleInline]
 admin.site.register(Article, ArticleAdmin)
 
 
