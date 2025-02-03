@@ -119,7 +119,7 @@ class Block(Model):
     description = HTMLField(null=True,blank=True, verbose_name="Описание")
 
     def __str__(self):
-        return self.title
+        return self.title if self.title else str(self.id)
 
     class Meta:
         verbose_name = "Блок"
