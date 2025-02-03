@@ -51,6 +51,10 @@ class Test(Model):
         (1, "Первый"),
         (2, "Второй"),
         (3, "Третий"),
+
+        (4, "Четвертый"),
+
+        (5, "Пятый"),
     ]
     slug = SlugField(max_length=275, unique=True, blank=True)
     title = CharField(max_length=125, verbose_name="Название")
@@ -77,6 +81,7 @@ class Test(Model):
 
 class Question(Model):
     title = HTMLField(null=True, blank=True, verbose_name="Название")
+    scale = CharField(max_length=225, null=True, blank=True)
     image = ImageField(upload_to='question_images/', null=True, blank=True, verbose_name="Картинка")
     answers = ManyToManyField("Answer", blank=True, verbose_name="Ответы")
 
@@ -85,6 +90,7 @@ class Question(Model):
     class Meta:
         verbose_name = "Вопрос"
         verbose_name_plural = "Вопросы"
+
 
 class Answer(Model):
     title = CharField(max_length=550, null=True, blank=True, verbose_name="Название")
@@ -97,6 +103,7 @@ class Answer(Model):
     class Meta:
         verbose_name = "Ответ"
         verbose_name_plural = "Ответы"
+
 
 class Result(Model):
     test = ForeignKey("Test", on_delete=CASCADE, verbose_name="Тест")

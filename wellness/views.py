@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 from django.conf import settings
 from drf_spectacular.utils import extend_schema
 from rest_framework import status
@@ -106,6 +108,19 @@ class TestViewSet(ModelViewSet):
                 return Response(data=serialized.data)
 
             return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        if test.test_type == 4:
+            selected_answers = serializer.validated_data['answers']
+            answers = Answer.objects.filter(id__in=selected_answers).select_related("question__scale")
+
+            scale_scores = defaultdict(int)  # Храним суммы баллов по шкалам
+
+            for answer in answers:
+                scale_name = answer.question.scale.name  # Получаем название шкалы у вопроса
+                scale_scores[scale_name] += answer.points  # Добавляем баллы в соответствующую шкалу
+
+            return Response(scale_scores, status=status.HTTP_200_OK)
+        # if test.test_type == 5:
 
         if test.calculation == "point":
             total_points = sum(
