@@ -111,17 +111,28 @@ class TestViewSet(ModelViewSet):
 
         if test.test_type == 4:
             selected_answers = serializer.validated_data['answers']
-            answers = Answer.objects.filter(id__in=selected_answers).select_related("question__scale")
+            answers = Answer.objects.filter(id__in=selected_answers).prefetch_related("question_set")
 
-            scale_scores = defaultdict(int)  # Храним суммы баллов по шкалам
-
+            scale_scores = defaultdict(int)
             for answer in answers:
-                scale_name = answer.question.scale.name  # Получаем название шкалы у вопроса
-                scale_scores[scale_name] += answer.points  # Добавляем баллы в соответствующую шкалу
-
+                for question in answer.question_set.all():
+                    scale_name = question.scale
+                    scale_scores[scale_name] += answer.points
             return Response(scale_scores, status=status.HTTP_200_OK)
-        # if test.test_type == 5:
+        if test.test_type == 5:
+            result = Result.objects.filter(test=test).first()
+            base_description = result.description
 
+            user_answers = Answer.objects.filter(id__in=selected_answers)
+            user_answers_text = "\n".join([answer.title for answer in user_answers])
+
+            final_description = f"{base_description}\n\nОтветы пользователя:\n{user_answers_text}"
+
+            return Response({
+                "description": final_description,
+                "test_name": test.title,
+                "image": f"{settings.CURRENT_DOMAIN}{result.test.full_image.url}",
+            }, status=status.HTTP_200_OK)
         if test.calculation == "point":
             total_points = sum(
                 getattr(answer, 'points', 1) * answer_counts[answer.id] for answer in answer_objects
