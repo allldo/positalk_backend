@@ -116,7 +116,7 @@ class Result(Model):
 
 class Block(Model):
     title = CharField(max_length=275, null=True, blank=True, verbose_name="Название")
-    description = TextField(null=True, blank=True, verbose_name="Описание")
+    description = HTMLField(null=True,blank=True, verbose_name="Описание")
 
     def __str__(self):
         return self.title
