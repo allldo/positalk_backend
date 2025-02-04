@@ -96,7 +96,7 @@ class Answer(Model):
     title = CharField(max_length=550, null=True, blank=True, verbose_name="Название")
     description = HTMLField(blank=True)
     image = ImageField(upload_to='answer_images/', null=True, blank=True, verbose_name="Картинка")
-    points = DecimalField(default=0.0, decimal_places=3, max_digits=5, verbose_name="Количество баллов")
+    points = DecimalField(default=0.0, decimal_places=3, max_digits=8, verbose_name="Количество баллов")
     ideal_score = IntegerField(default=5, null=True, blank=True)
 
     def __str__(self):
