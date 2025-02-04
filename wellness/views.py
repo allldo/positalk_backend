@@ -1,5 +1,6 @@
 from collections import defaultdict
 
+from celery.bin.result import result
 from django.conf import settings
 from drf_spectacular.utils import extend_schema
 from rest_framework import status
@@ -9,7 +10,7 @@ from rest_framework.status import HTTP_200_OK
 from rest_framework.viewsets import ModelViewSet
 
 from wellness.filters import CaseInsensitiveSearchFilter
-from wellness.models import Article, Test, Answer, Result
+from wellness.models import Article, Test, Answer, Result, Question
 from wellness.pagination import ArticlePagination, TestPagination
 from wellness.serializers import ArticleSerializer, TestSerializer, ArticleNestedSerializer, TestSubmissionSerializer, \
     TestListSerializer, ResultSerializer
@@ -112,13 +113,28 @@ class TestViewSet(ModelViewSet):
         if test.test_type == 4:
             selected_answers = serializer.validated_data['answers']
             answers = Answer.objects.filter(id__in=selected_answers).prefetch_related("question_set")
+            result = Result.objects.filter(test=test).first()
+            scale_scores = defaultdict(lambda: {"score": 0, "min": 0, "max": 0})
 
-            scale_scores = defaultdict(int)
             for answer in answers:
+
                 for question in answer.question_set.all():
+
                     scale_name = question.scale
-                    scale_scores[scale_name] += answer.points
-            return Response(scale_scores, status=status.HTTP_200_OK)
+                    scale_scores[scale_name]["score"] += answer.points
+
+            all_questions = Question.objects.filter(tests=test).prefetch_related("answers")
+
+            for question in all_questions:
+                scale_name = question.scale
+                possible_points = [ans.points for ans in question.answers.all()]
+
+                if possible_points:
+                    scale_scores[scale_name]["min"] += min(possible_points)
+                    scale_scores[scale_name]["max"] += max(possible_points)
+
+            return Response(data={"score": scale_scores, "result": result.description}, status=status.HTTP_200_OK)
+
         if test.test_type == 5:
             result = Result.objects.filter(test=test).first()
             base_description = result.description
