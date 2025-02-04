@@ -1,5 +1,5 @@
 from django.db.models import Model, CharField, DateTimeField, ImageField, TextField, PositiveIntegerField, \
-    ManyToManyField, SlugField, ForeignKey, CASCADE, IntegerField
+    ManyToManyField, SlugField, ForeignKey, CASCADE, IntegerField, DecimalField
 from pytils.translit import slugify
 from tinymce.models import HTMLField
 
@@ -96,7 +96,7 @@ class Answer(Model):
     title = CharField(max_length=550, null=True, blank=True, verbose_name="Название")
     description = HTMLField(blank=True)
     image = ImageField(upload_to='answer_images/', null=True, blank=True, verbose_name="Картинка")
-    points = IntegerField(default=0, verbose_name="Количество баллов")
+    points = DecimalField(default=0.0, decimal_places=3, max_digits=5, verbose_name="Количество баллов")
     ideal_score = IntegerField(default=5, null=True, blank=True)
 
     def __str__(self):
