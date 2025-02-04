@@ -112,26 +112,48 @@ class TestViewSet(ModelViewSet):
 
         if test.test_type == 4:
             selected_answers = serializer.validated_data['answers']
-            answers = Answer.objects.filter(id__in=selected_answers).prefetch_related("question_set")
-            result = Result.objects.filter(test=test).first()
+
+            questions = Question.objects.filter(tests=test).order_by(
+                'id')
+            if len(selected_answers) != len(questions):
+                return Response(
+                    {"detail": "Количество ответов не совпадает с количеством вопросов"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            answers = Answer.objects.filter(id__in=selected_answers)
+
+            answer_dict = {answer.id: answer for answer in answers}
+
             scale_scores = defaultdict(lambda: {"score": 0, "min": 0, "max": 0})
 
-            for answer in answers:
+            for question, answer_id in zip(questions, selected_answers):
+                answer = answer_dict.get(answer_id)
 
-                for question in answer.question_set.all():
+                if not answer:
+                    return Response(
+                        {"detail": f"Ответ с ID {answer_id} не найден"},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
 
-                    scale_name = question.scale
-                    scale_scores[scale_name]["score"] += answer.points
+                # Добавляем баллы ответа в соответствующую шкалу
+                scale_name = question.scale
+                scale_scores[scale_name]["score"] += answer.points
 
-            all_questions = Question.objects.filter(tests=test).prefetch_related("answers")
-
-            for question in all_questions:
+            # Вычисляем min/max баллы для каждой шкалы
+            for question in questions:
                 scale_name = question.scale
                 possible_points = [ans.points for ans in question.answers.all()]
 
                 if possible_points:
                     scale_scores[scale_name]["min"] += min(possible_points)
                     scale_scores[scale_name]["max"] += max(possible_points)
+
+            # Получаем результат теста
+            result = Result.objects.filter(test=test).first()
+
+            if not result:
+                return Response({"detail": "Результат не найден"}, status=status.HTTP_404_NOT_FOUND)
 
             return Response(data={"score": scale_scores, "result": result.description}, status=status.HTTP_200_OK)
 
