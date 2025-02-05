@@ -24,6 +24,11 @@ class QuestionAdmin(admin.ModelAdmin):
     def has_module_permission(self, request):
         return False
 
+    def formfield_for_manytomany(self, db_field, request, **kwargs):
+        if db_field.name == 'answers':
+            kwargs['queryset'] = Answer.objects.all().order_by('-id')
+        return super().formfield_for_manytomany(db_field, request, **kwargs)
+
 
 @admin.register(Answer)
 class AnswerAdmin(admin.ModelAdmin):
