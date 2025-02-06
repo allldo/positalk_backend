@@ -1,0 +1,41 @@
+from django.db import models
+
+from cabinet.models import PsychologistSurvey, CustomUser
+
+
+class Session(models.Model):
+    psychologist = models.ForeignKey(PsychologistSurvey, on_delete=models.CASCADE)
+    client = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="sessions")
+    start_time = models.DateTimeField()
+    end_time = models.DateTimeField()
+
+    def __str__(self):
+        return f"{self.client} -> {self.psychologist} ({self.start_time})"
+
+
+class TimeSlot(models.Model):
+    DAYS_OF_WEEK = (
+        (0, 'Понедельник'),
+        (1, 'Вторник'),
+        (2, 'Среда'),
+        (3, 'Четверг'),
+        (4, 'Пятница'),
+        (5, 'Суббота'),
+        (6, 'Воскресенье'),
+    )
+
+    psychologist = models.ForeignKey(
+        PsychologistSurvey,
+        on_delete=models.CASCADE,
+        related_name='timeslots'
+    )
+    day_of_week = models.IntegerField(choices=DAYS_OF_WEEK)
+    time = models.TimeField(help_text="Время в формате HH:MM (от 00:00 до 23:00)")
+    is_available = models.BooleanField(default=True, help_text="Доступен ли слот для записи")
+
+    class Meta:
+        unique_together = ('psychologist', 'day_of_week', 'time')
+        ordering = ['day_of_week', 'time']
+
+    def __str__(self):
+        return f"{self.get_day_of_week_display()} {self.time} ({'Доступен' if self.is_available else 'Не доступен'})"

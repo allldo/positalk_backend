@@ -3,7 +3,7 @@ from random import choice
 
 from django.contrib.auth.models import AbstractUser
 from django.db.models import Model, CharField, DateTimeField, BooleanField, EmailField, ForeignKey, CASCADE, SET_NULL, \
-    ManyToManyField, PositiveIntegerField, TextField, ImageField, DecimalField
+    ManyToManyField, PositiveIntegerField, TextField, ImageField, DecimalField, DurationField, TimeField
 from django.utils.timezone import now, timedelta
 
 from cabinet.managers import UserManager

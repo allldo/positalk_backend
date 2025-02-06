@@ -54,7 +54,8 @@ INSTALLED_APPS = [
     'cabinet',
     'psy_store',
     'wellness',
-    'sales'
+    'sales',
+    'session',
 ]
 
 MIDDLEWARE = [
