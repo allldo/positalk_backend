@@ -6,7 +6,7 @@ from session.views import PsychologistSessionListAPIView, TimeSlotViewSet, Psych
 router = DefaultRouter()
 router.register(r'timeslots', TimeSlotViewSet, basename='timeslot')
 urlpatterns = [
-    path('psychologists-list', PsychologistSessionListAPIView.as_view()),
+    path('psychologists-list/', PsychologistSessionListAPIView.as_view()),
     path('schedule/<int:psychologist_id>/', PsychologistScheduleAPIView.as_view(), name='psychologist_schedule'),
 
     # path('verify-webhook/', WebhookVerifyView.as_view(), name='verify_webhook'),
