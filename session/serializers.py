@@ -18,4 +18,4 @@ class PsychologistSessionSerializer(ModelSerializer):
 
     class Meta:
         model = PsychologistSurvey
-        fields = ['id', 'name', 'last_session', 'next_session']
+        fields = ['id', 'name','photo', 'last_session', 'next_session']
