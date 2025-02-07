@@ -2,6 +2,7 @@ from datetime import date, datetime, timedelta, time as dt_time
 
 from django.db.models import  OuterRef, Subquery, DateTimeField
 from django.utils.timezone import now
+from drf_spectacular.utils import extend_schema
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.generics import ListAPIView, get_object_or_404
 from rest_framework.permissions import IsAuthenticated
@@ -11,7 +12,7 @@ from rest_framework.viewsets import ModelViewSet
 
 from cabinet.models import PsychologistSurvey
 from session.models import TimeSlot, Session
-from session.serializers import TimeSlotSerializer, PsychologistSessionSerializer
+from session.serializers import TimeSlotSerializer, PsychologistSessionSerializer, SessionTransferSerializer
 from session.service import create_time_slot
 
 
@@ -100,6 +101,7 @@ class PsychologistScheduleRangeAPIView(APIView):
         )
 
         session_dict = {}
+        session_id = None
         for session in sessions:
             key = session.start_time.strftime('%Y-%m-%d %H:%M')
             session_dict[key] = session
@@ -113,7 +115,11 @@ class PsychologistScheduleRangeAPIView(APIView):
                     occ_str = occurrence_dt.strftime('%Y-%m-%d %H:%M')
                     if occ_str in session_dict:
                         session = session_dict[occ_str]
-                        status_slot = "busy_self" if session.client == request.user else "busy"
+                        if session.client == request.user:
+                            status_slot = "busy_self"
+                            session_id = session.id
+                        else:
+                            status_slot = "busy"
                     else:
                         status_slot = "free"
                     occurrences.append({
@@ -121,9 +127,22 @@ class PsychologistScheduleRangeAPIView(APIView):
                         'day_of_week': slot.get_day_of_week_display(),
                         'time': slot.time.strftime('%H:%M'),
                         'datetime': occ_str,
-                        'status': status_slot
+                        'status': status_slot,
+                        'session_id': session_id
                     })
             current_date += timedelta(days=1)
 
         occurrences.sort(key=lambda x: x['datetime'])
         return Response(occurrences)
+
+
+class TransferSessionAPIView(APIView):
+    # нужны проверки: на прошлое, 24 часа
+    @extend_schema(request=SessionTransferSerializer)
+    def post(self, request, session_id):
+        session = Session.objects.get(id=session_id)
+        serializer = SessionTransferSerializer(request.body)
+        if serializer.is_valid():
+            session.start_time = serializer.data.get('start_time')
+            session.end_time = serializer.data.get('end_time')
+            return Response(data={'status': 'success'}, status=200)

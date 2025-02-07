@@ -1,8 +1,8 @@
 from rest_framework.fields import DateTimeField
-from rest_framework.serializers import ModelSerializer
+from rest_framework.serializers import ModelSerializer, Serializer
 
 from cabinet.models import PsychologistSurvey
-from session.models import TimeSlot
+from session.models import TimeSlot, Session
 
 
 class TimeSlotSerializer(ModelSerializer):
@@ -19,3 +19,8 @@ class PsychologistSessionSerializer(ModelSerializer):
     class Meta:
         model = PsychologistSurvey
         fields = ['id', 'name','photo', 'last_session', 'next_session']
+
+
+class SessionTransferSerializer(Serializer):
+    start_time = DateTimeField()
+    end_time = DateTimeField()
