@@ -1,13 +1,22 @@
 from django.db import models
+from django.db.models import CharField
 
 from cabinet.models import PsychologistSurvey, CustomUser
 
 
 class Session(models.Model):
+    SESSION_CHOICES = [
+        ('awaiting_payment', 'awaiting_payment'),
+        ('cancelled', 'cancelled'),
+        ('awaiting', 'awaiting'),
+        ('complete', 'complete'),
+
+    ]
     psychologist = models.ForeignKey(PsychologistSurvey, on_delete=models.CASCADE)
     client = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="sessions")
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
+    status = CharField(max_length=225, choices=SESSION_CHOICES, default='awaiting_payment')
 
     def __str__(self):
         return f"{self.client} -> {self.psychologist} ({self.start_time})"

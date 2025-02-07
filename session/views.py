@@ -1,5 +1,6 @@
 from datetime import date, datetime, timedelta, time as dt_time
 
+from celery.bin.control import status
 from django.db.models import  OuterRef, Subquery, DateTimeField
 from django.utils.timezone import now
 from drf_spectacular.utils import extend_schema
@@ -12,7 +13,7 @@ from rest_framework.viewsets import ModelViewSet
 
 from cabinet.models import PsychologistSurvey
 from session.models import TimeSlot, Session
-from session.serializers import TimeSlotSerializer, PsychologistSessionSerializer, SessionTransferSerializer
+from session.serializers import TimeSlotSerializer, PsychologistSessionSerializer, SessionDateSerializer
 from session.service import create_time_slot
 
 
@@ -28,13 +29,13 @@ class PsychologistSessionListAPIView(ListAPIView):
             client=user,
             psychologist=OuterRef('pk'),
             start_time__lt=now()
-        ).order_by('-start_time').values('start_time')[:1]
+        ).exclude(status='awaiting_payment').order_by('-start_time').values('start_time')[:1]
 
         next_session_qs = Session.objects.filter(
             client=user,
             psychologist=OuterRef('pk'),
             start_time__gt=now()
-        ).order_by('start_time').values('start_time')[:1]
+        ).exclude(status='awaiting_payment').order_by('start_time').values('start_time')[:1]
 
         qs = PsychologistSurvey.objects.filter(
             session__client=user
@@ -137,12 +138,46 @@ class PsychologistScheduleRangeAPIView(APIView):
 
 
 class TransferSessionAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
     # нужны проверки: на прошлое, 24 часа
-    @extend_schema(request=SessionTransferSerializer)
+    @extend_schema(request=SessionDateSerializer)
     def post(self, request, session_id):
-        session = Session.objects.get(id=session_id)
-        serializer = SessionTransferSerializer(request.body)
+        session = Session.objects.get(id=session_id, client=request.user, status='awaiting')
+        serializer = SessionDateSerializer(request.body)
         if serializer.is_valid():
             session.start_time = serializer.data.get('start_time')
             session.end_time = serializer.data.get('end_time')
+            session.save()
             return Response(data={'status': 'success'}, status=200)
+
+
+class CancelSessionAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+
+    def post(self, request, session_id):
+        session = Session.objects.get(id=session_id, client=request.user, status='awaiting')
+
+        session.status = 'cancelled'
+        session.save()
+        return Response(data={'status': 'success'}, status=200)
+
+
+class BookSessionAPIView(APIView):
+
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+# проверка на то была ли сессия с психологом (во избежание абуза)
+    @extend_schema(request=SessionDateSerializer)
+    def post(self, request, psychologist_id):
+        psychologist = PsychologistSurvey.objects.get(psychologist_id)
+
+        serializer = SessionDateSerializer(request.body)
+        if serializer.is_valid():
+            Session.objects.create(psychologist=psychologist,
+                                   client=request.user, start_time = serializer.data.get('start_time'),
+                                   end_time = serializer.data.get('end_time'), status='awaiting_payment')
+
+            return Response(data={'status': 'success'}, status=200)
+        return Response(data={'status': 'fail'}, status=200)

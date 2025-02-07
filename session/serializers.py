@@ -21,6 +21,6 @@ class PsychologistSessionSerializer(ModelSerializer):
         fields = ['id', 'name','photo', 'last_session', 'next_session']
 
 
-class SessionTransferSerializer(Serializer):
+class SessionDateSerializer(Serializer):
     start_time = DateTimeField()
     end_time = DateTimeField()

@@ -1,4 +1,5 @@
 import random
+from email.policy import default
 from random import choice
 
 from django.contrib.auth.models import AbstractUser
@@ -102,6 +103,7 @@ class PsychologistSurvey(Model):
     psycho_topic = ManyToManyField("wellness.PsychoTopic", verbose_name="Направление")
     description = TextField(verbose_name="Описание")
     sex = CharField(max_length=125, choices=SEX_CHOICES, default='man', verbose_name="Пол")
+    price = PositiveIntegerField(default=0, verbose_name='Цена за сессию')
 
     def __str__(self):
         return f"Психолог {self.name}, опыт {self.experience}, рейтинг - {self.rating}"
