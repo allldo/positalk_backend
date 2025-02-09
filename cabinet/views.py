@@ -11,6 +11,7 @@ from cabinet.models import PhoneVerification
 from cabinet.serializers import PhoneSerializer, CodeVerificationSerializer, SurveyInfoSerializer, \
     SurveySubmitSerializer
 from cabinet.services import send_sms
+from psy_store.serializers import PsychologistsSurveySerializer
 from wellness.models import Feeling, Relation, WorkStudy, LifeEvent, CoupleTherapy, PreferablePrice
 
 User = get_user_model()
@@ -86,4 +87,12 @@ class SurveySubmitView(CreateAPIView):
 
 
 class ApplySurveyPsychologist(CreateAPIView):
-    pass
+    serializer_class = PsychologistsSurveySerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        survey = serializer.save()
+        return Response(self.get_serializer(survey).data, status=201)
