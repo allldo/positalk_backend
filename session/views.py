@@ -178,7 +178,7 @@ class BookSessionAPIView(APIView):
     def post(self, request, psychologist_id):
         psychologist = PsychologistSurvey.objects.get(id=psychologist_id)
 
-        serializer = SessionDateSerializer(request.body)
+        serializer = SessionDateSerializer(data=request.body)
         if serializer.is_valid():
             session = Session.objects.create(psychologist=psychologist,
                                    client=request.user, start_time = serializer.data.get('start_time'),
