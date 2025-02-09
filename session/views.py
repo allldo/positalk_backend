@@ -176,7 +176,7 @@ class BookSessionAPIView(APIView):
 # проверка на то была ли сессия с психологом (во избежание абуза)
     @extend_schema(request=SessionDateSerializer)
     def post(self, request, psychologist_id):
-        psychologist = PsychologistSurvey.objects.get(psychologist_id)
+        psychologist = PsychologistSurvey.objects.get(id=psychologist_id)
 
         serializer = SessionDateSerializer(request.body)
         if serializer.is_valid():
