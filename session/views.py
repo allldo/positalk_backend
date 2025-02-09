@@ -149,7 +149,7 @@ class TransferSessionAPIView(APIView):
     @extend_schema(request=SessionDateSerializer)
     def post(self, request, session_id):
         session = Session.objects.get(id=session_id, client=request.user, status='awaiting')
-        serializer = SessionDateSerializer(request.data)
+        serializer = SessionDateSerializer(data=request.data)
         if serializer.is_valid():
             session.start_time = serializer.data.get('start_time')
             session.end_time = serializer.data.get('end_time')
