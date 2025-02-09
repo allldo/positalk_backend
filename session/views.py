@@ -1,6 +1,7 @@
 from datetime import date, datetime, timedelta, time as dt_time
 
 from celery.bin.control import status
+from django.conf import settings
 from django.db.models import  OuterRef, Subquery, DateTimeField
 from django.utils.timezone import now
 from drf_spectacular.utils import extend_schema
@@ -135,7 +136,9 @@ class PsychologistScheduleRangeAPIView(APIView):
             current_date += timedelta(days=1)
 
         occurrences.sort(key=lambda x: x['datetime'])
-        response = {'slots': occurrences, 'psychologist_info': {'psychologist_name': psychologist.name, 'psychologist_avatar': psychologist.photo.url }}
+        response = {'slots': occurrences, 'psychologist_info':
+            {'psychologist_name': psychologist.name,
+             'psychologist_avatar': f"{settings.CURRENT_DOMAIN}{psychologist.photo.url}" }}
         return Response(response)
 
 
