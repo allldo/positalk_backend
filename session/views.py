@@ -135,8 +135,8 @@ class PsychologistScheduleRangeAPIView(APIView):
             current_date += timedelta(days=1)
 
         occurrences.sort(key=lambda x: x['datetime'])
-        occurrences.append({'psychologist_name': psychologist.name})
-        return Response(occurrences)
+        response = {'slots': occurrences, 'psychologist_info': {'psychologist_name': psychologist.name, 'psychologist_avatar': psychologist.photo.url }}
+        return Response(response)
 
 
 class TransferSessionAPIView(APIView):
