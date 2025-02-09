@@ -72,7 +72,7 @@ class PsychologistScheduleRangeAPIView(APIView):
     def get(self, request, psychologist_id):
         psychologist = get_object_or_404(PsychologistSurvey, id=psychologist_id)
 
-        if not Session.objects.filter(client=request.user, psychologist=psychologist).exists():
+        if not Session.objects.filter(client=request.user, psychologist=psychologist, status='awaiting').exists():
             return Response(
                 {"detail": "У вас нет сессии с данным психологом."},
                 status=403
@@ -98,7 +98,8 @@ class PsychologistScheduleRangeAPIView(APIView):
         sessions = Session.objects.filter(
             psychologist=psychologist,
             start_time__gte=start_dt,
-            start_time__lt=end_dt
+            start_time__lt=end_dt,
+            status='awaiting'
         )
 
         session_dict = {}
@@ -134,6 +135,7 @@ class PsychologistScheduleRangeAPIView(APIView):
             current_date += timedelta(days=1)
 
         occurrences.sort(key=lambda x: x['datetime'])
+        occurrences.append({'psychologist_name': psychologist.name})
         return Response(occurrences)
 
 
@@ -175,9 +177,9 @@ class BookSessionAPIView(APIView):
 
         serializer = SessionDateSerializer(request.body)
         if serializer.is_valid():
-            Session.objects.create(psychologist=psychologist,
+            session = Session.objects.create(psychologist=psychologist,
                                    client=request.user, start_time = serializer.data.get('start_time'),
                                    end_time = serializer.data.get('end_time'), status='awaiting_payment')
 
-            return Response(data={'status': 'success'}, status=200)
+            return Response(data={'status': 'success', "session_id": session.id}, status=200)
         return Response(data={'status': 'fail'}, status=200)

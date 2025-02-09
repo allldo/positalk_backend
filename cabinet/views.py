@@ -83,3 +83,7 @@ class SurveySubmitView(CreateAPIView):
             survey = serializer.save()
             return Response(SurveySubmitSerializer(survey).data, status=201)
         return Response(serializer.errors, status=400)
+
+
+class ApplySurveyPsychologist(CreateAPIView):
+    pass
