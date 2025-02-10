@@ -221,5 +221,5 @@ class AbuseAPIView(CreateAPIView):
 
 
 class GetAnswers(ListAPIView):
-    queryset = Answer.objects.all().order_by('-id')[:5]
+    queryset = Answer.objects.all().order_by('-id')[:12]
     serializer_class = AnswerNestedSerializer
