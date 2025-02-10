@@ -4,16 +4,19 @@ from celery.bin.result import result
 from django.conf import settings
 from drf_spectacular.utils import extend_schema
 from rest_framework import status
-from rest_framework.generics import ListAPIView, get_object_or_404
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.generics import ListAPIView, get_object_or_404, CreateAPIView
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK
+from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
 from wellness.filters import CaseInsensitiveSearchFilter
 from wellness.models import Article, Test, Answer, Result, Question
 from wellness.pagination import ArticlePagination, TestPagination
 from wellness.serializers import ArticleSerializer, TestSerializer, ArticleNestedSerializer, TestSubmissionSerializer, \
-    TestListSerializer, ResultSerializer
+    TestListSerializer, ResultSerializer, AbuseSerializer, AnswerNestedDefaultSerializer, AnswerNestedSerializer
 
 
 class ArticleViewSet(ModelViewSet):
@@ -209,3 +212,14 @@ class TestViewSet(ModelViewSet):
 class TestListAPIView(ListAPIView):
     queryset = Test.objects.all()[:5]
     serializer_class = TestListSerializer
+
+
+class AbuseAPIView(CreateAPIView):
+    serializer_class = AbuseSerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+
+
+class GetAnswers(ListAPIView):
+    queryset = Answer.objects.all().order_by('-id')[:5]
+    serializer_class = AnswerNestedSerializer
