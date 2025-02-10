@@ -1,4 +1,7 @@
-from rest_framework.fields import DecimalField
+import json
+
+from jsonschema.exceptions import ValidationError
+from rest_framework.fields import DecimalField, ListField, CharField
 from rest_framework.relations import StringRelatedField
 from rest_framework.serializers import ModelSerializer
 
@@ -19,8 +22,10 @@ class EducationSerializer(ModelSerializer):
         fields = ['id', 'year', 'text']
 
 class PsychologistsSurveySerializer(ModelSerializer):
-    psycho_topic = StringRelatedField(many=True)
-    education_psychologist = EducationSerializer(many=True)
+    # Принимаем psycho_topic как список строк
+    psycho_topic = ListField(child=CharField(), required=False)
+    # Для образования передаем JSON-строку
+    education_psychologist = CharField(write_only=True, required=False)
     rating = DecimalField(read_only=True, max_digits=2, decimal_places=1)
 
     class Meta:
@@ -31,18 +36,39 @@ class PsychologistsSurveySerializer(ModelSerializer):
         request = self.context['request']
         user = request.user
 
-        psycho_topics_data = self.initial_data.get('psycho_topic', [])
-        education_data = self.initial_data.get('education_psychologist', [])
+        # Извлекаем данные для направлений (psycho_topic)
+        psycho_topics_data = validated_data.pop('psycho_topic', [])
+        # Если данные пришли не в виде списка, например, как строка, обрабатываем
+        if isinstance(psycho_topics_data, str):
+            final_topics = [name.strip() for name in psycho_topics_data.split(",") if name.strip()]
+        elif isinstance(psycho_topics_data, list):
+            final_topics = []
+            for item in psycho_topics_data:
+                if isinstance(item, str) and ',' in item:
+                    final_topics.extend([name.strip() for name in item.split(",") if name.strip()])
+                elif isinstance(item, str):
+                    final_topics.append(item.strip())
+                else:
+                    final_topics.append(item)
+        else:
+            final_topics = []
 
-        survey = PsychologistSurvey.objects.create(user=user, **validated_data)
+        # Создаем или находим объекты PsychoTopic для каждого отдельного названия
+        psycho_topics = [PsychoTopic.objects.get_or_create(name=name)[0] for name in final_topics]
 
-        psycho_topics = []
-        for topic_name in psycho_topics_data:
-            topic, _ = PsychoTopic.objects.get_or_create(name=topic_name)
-            psycho_topics.append(topic)
-        survey.psycho_topic.set(psycho_topics)
-
+        # Обрабатываем образование, которое всегда создается
+        education_json = validated_data.pop('education_psychologist', '[]')
+        try:
+            education_data = json.loads(education_json)
+        except json.JSONDecodeError:
+            education_data = []
         education_instances = [Education.objects.create(**edu) for edu in education_data]
+
+        # Создаем анкету психолога (без ManyToMany полей)
+        survey = PsychologistSurvey.objects.create(user=user, **validated_data)
+        # Устанавливаем связи ManyToMany
+        survey.psycho_topic.set(psycho_topics)
         survey.education_psychologist.set(education_instances)
 
+        raise ValidationError('fine')
         return survey
