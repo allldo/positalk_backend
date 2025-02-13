@@ -88,8 +88,8 @@ class SurveySubmitView(CreateAPIView):
 
 class ApplySurveyPsychologist(CreateAPIView):
     serializer_class = PsychologistsSurveySerializer
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [TokenAuthentication]
+    # permission_classes = [IsAuthenticated]
+    # authentication_classes = [TokenAuthentication]
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
