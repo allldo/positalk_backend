@@ -53,13 +53,14 @@ class PsychologistsSurveySerializer(ModelSerializer):
         psycho_topics = [PsychoTopic.objects.get_or_create(name=name)[0] for name in final_topics]
 
         education_json = validated_data.pop('education_psychologist', '[]')
+        phone_number = validated_data.pop('phone_number')
         try:
             education_data = json.loads(education_json)
         except json.JSONDecodeError:
             education_data = []
         education_instances = [Education.objects.create(**edu) for edu in education_data]
 
-        user = CustomUser.objects.get_or_create(phone_number=validated_data.get('phone_number'), user_type='psychologist')[0]
+        user = CustomUser.objects.get_or_create(phone_number=phone_number, user_type='psychologist')[0]
 
         survey = PsychologistSurvey.objects.create(user=user, **validated_data)
         survey.psycho_topic.set(psycho_topics)
