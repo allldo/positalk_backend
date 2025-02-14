@@ -23,7 +23,7 @@ class EducationSerializer(ModelSerializer):
 
 class PsychologistsSurveySerializer(ModelSerializer):
     # Принимаем psycho_topic как список строк
-    psycho_topic = ListField(child=CharField(), required=False)
+    psycho_topic = ListField(child=CharField(), required=False, write_only=True)
     # Для образования передаем JSON-строку
     education_psychologist = CharField(write_only=True, required=False)
     rating = DecimalField(read_only=True, max_digits=2, decimal_places=1)
@@ -66,5 +66,4 @@ class PsychologistsSurveySerializer(ModelSerializer):
         survey.psycho_topic.set(psycho_topics)
         survey.education_psychologist.set(education_instances)
 
-        raise ValidationError('fine')
         return survey
