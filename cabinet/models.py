@@ -28,6 +28,9 @@ class CustomUser(AbstractUser):
         verbose_name = "Пользователь"
         verbose_name_plural = "Пользователи"
 
+    def get_name(self):
+        return Survey.objects.filter(user=self).first().nickname
+
 
 class PhoneVerification(Model):
     phone = CharField(max_length=15, verbose_name="Номер телефона")
@@ -107,7 +110,7 @@ class PsychologistSurvey(Model):
 
     is_approved = BooleanField(default=False, verbose_name='Одобрен/а')
     def __str__(self):
-        return f"Психолог {self.name}, опыт {self.experience}, рейтинг - {self.rating}"
+        return f"Психолог {self.name}, опыт {self.experience}, рейтинг - {self.rating} - user {self.user}"
 
     class Meta:
         verbose_name = "Психолог"

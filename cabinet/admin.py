@@ -12,7 +12,7 @@ admin.site.register(PsychologistSurvey)
 
 class CustomUserAdmin(UserAdmin):
     fieldsets = (
-        (None, {'fields': ('phone_number',)}),
+        (None, {'fields': ('phone_number', 'user_type')}),
     )
     add_fieldsets = (
         (None, {
@@ -21,7 +21,7 @@ class CustomUserAdmin(UserAdmin):
         }),
     )
 
-    list_display = ('phone_number',)
+    list_display = ('phone_number', 'user_type')
     search_fields = ('phone_number',)
     ordering = ('phone_number',)
 
