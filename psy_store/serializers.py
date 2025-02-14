@@ -23,13 +23,12 @@ class EducationSerializer(ModelSerializer):
         fields = ['id', 'year', 'text']
 
 class PsychologistsSurveySerializer(ModelSerializer):
-    # Принимаем psycho_topic как список строк
     psycho_topics = ListField(child=CharField(), required=False, write_only=True)
-    # Для образования передаем JSON-строку
-    education_psychologist = CharField(write_only=True, required=False)
+    education_psychologist_write = CharField(write_only=True, required=False)
     rating = DecimalField(read_only=True, max_digits=2, decimal_places=1)
     phone_number = CharField(max_length=45, write_only=True)
     psycho_topic = PsychoTopicSerializer(many=True, read_only=True)
+    education_psychologist = EducationSerializer(many=True, read_only=True)
 
     class Meta:
         model = PsychologistSurvey

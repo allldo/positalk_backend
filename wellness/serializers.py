@@ -102,7 +102,6 @@ class CreateQuestionSerializer(Serializer):
 
 
 class QuestionSerializer(ModelSerializer):
-    # Можно выводить привязанные ответы как список ID
     answers = PrimaryKeyRelatedField(many=True, read_only=True)
 
     class Meta:
