@@ -2,7 +2,7 @@ from datetime import date, datetime, timedelta, time as dt_time
 
 from celery.bin.control import status
 from django.conf import settings
-from django.db.models import  OuterRef, Subquery, DateTimeField
+from django.db.models import OuterRef, Subquery, DateTimeField, Count
 from django.utils.timezone import now
 from drf_spectacular.utils import extend_schema
 from rest_framework.authentication import TokenAuthentication
@@ -15,7 +15,8 @@ from rest_framework.viewsets import ModelViewSet
 from cabinet.models import PsychologistSurvey
 from session.models import TimeSlot, Session
 from session.permissions import IsPsychologist
-from session.serializers import TimeSlotSerializer, PsychologistSessionSerializer, SessionDateSerializer
+from session.serializers import TimeSlotSerializer, PsychologistSessionSerializer, SessionDateSerializer, \
+    PsychologistClientSerializer
 from session.service import create_time_slot
 
 
@@ -53,11 +54,13 @@ class TimeSlotViewSet(ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return TimeSlot.objects.filter(psychologist=self.request.user)
+        return TimeSlot.objects.filter(psychologist=self.request.user.get_psychologist())
 
     def create(self, request, *args, **kwargs):
 
         time_slots = create_time_slot(request.user, request.data)
+        if time_slots.get('error'):
+            return Response(time_slots, status=400)
         serializer = self.get_serializer(time_slots, many=True)
         return Response(serializer.data, status=201)
 
@@ -260,3 +263,38 @@ class BookSessionAPIView(APIView):
 
             return Response(data={'status': 'success', "session_id": session.id}, status=200)
         return Response(data={'status': 'fail'}, status=200)
+
+
+class MyClientsListAPIView(ListAPIView):
+    permission_classes = [IsAuthenticated, IsPsychologist]
+    authentication_classes = [TokenAuthentication]
+    serializer_class = PsychologistClientSerializer
+
+    def get_queryset(self):
+        psychologist = self.request.user.get_psychologist()
+
+        if not psychologist:
+            return PsychologistSurvey.objects.none()
+
+        # Подзапрос для даты последней сессии
+        last_session_qs = Session.objects.filter(
+            client=OuterRef('user'),
+            psychologist=psychologist,
+            start_time__lt=now()
+        ).order_by('-start_time').values('start_time')[:1]
+
+        # Подзапрос для даты следующей сессии
+        future_session_qs = Session.objects.filter(
+            client=OuterRef('user'),
+            psychologist=psychologist,
+            start_time__gt=now()
+        ).order_by('start_time').values('start_time')[:1]
+
+        # Основной запрос
+        return PsychologistSurvey.objects.filter(
+            user__sessions__psychologist=psychologist
+        ).distinct().annotate(
+            session_count=Count('user__sessions'),
+            last_session_date=Subquery(last_session_qs, output_field=DateTimeField()),
+            future_session_date=Subquery(future_session_qs, output_field=DateTimeField())
+        )

@@ -47,4 +47,4 @@ class TimeSlot(models.Model):
         ordering = ['day_of_week', 'time']
 
     def __str__(self):
-        return f"{self.get_day_of_week_display()} {self.time} ({'Доступен' if self.is_available else 'Не доступен'})"
+        return f"{self.get_day_of_week_display()} {self.time} от {self.psychologist} ({'Доступен' if self.is_available else 'Не доступен'})"

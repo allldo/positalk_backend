@@ -31,6 +31,9 @@ class CustomUser(AbstractUser):
     def get_name(self):
         return Survey.objects.filter(user=self).first().nickname
 
+    def get_psychologist(self):
+        return PsychologistSurvey.objects.filter(user=self).first()
+
 
 class PhoneVerification(Model):
     phone = CharField(max_length=15, verbose_name="Номер телефона")
@@ -95,6 +98,11 @@ class PsychologistSurvey(Model):
         ('man', 'Мужской')
     ]
 
+    AGE_CLIENT_CHOICES = [
+        ('16+', '16+'),
+        ('18+', '18+'),
+    ]
+
     photo = ImageField(upload_to='psycho_avatars/', null=True, blank=True, verbose_name="Фото")
     user = ForeignKey(CustomUser, on_delete=CASCADE, related_name="psycho_profile", verbose_name="Пользователь")
     education_psychologist = ManyToManyField(Education, blank=True, verbose_name="Образование")
@@ -107,7 +115,14 @@ class PsychologistSurvey(Model):
     description = TextField(verbose_name="Описание")
     sex = CharField(max_length=125, choices=SEX_CHOICES, default='man', verbose_name="Пол")
     price = PositiveIntegerField(default=0, verbose_name='Цена за сессию')
-
+    email = EmailField(max_length=225, null=True, blank=True)
+    notifications_phone = BooleanField(default=False)
+    notifications_email = BooleanField(default=False)
+    date_of_birth = DateTimeField(null=True, blank=True)
+    language = CharField(max_length=155, default='Русский')
+    # timezone = CharField(max_length=225, default="")
+    client_age = CharField(max_length=5, choices=AGE_CLIENT_CHOICES, default='18+')
+    experience_with_identity_search = BooleanField(default=False)
     is_approved = BooleanField(default=False, verbose_name='Одобрен/а')
     def __str__(self):
         return f"Психолог {self.name}, опыт {self.experience}, рейтинг - {self.rating} - user {self.user}"

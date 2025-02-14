@@ -2,16 +2,17 @@ from django.contrib.auth import get_user_model
 from rest_framework import status
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.authtoken.models import Token
-from rest_framework.generics import CreateAPIView
+from rest_framework.generics import CreateAPIView, UpdateAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from cabinet.models import PhoneVerification
+from cabinet.models import PhoneVerification, PsychologistSurvey
 from cabinet.serializers import PhoneSerializer, CodeVerificationSerializer, SurveyInfoSerializer, \
     SurveySubmitSerializer
 from cabinet.services import send_sms
 from psy_store.serializers import PsychologistsSurveySerializer
+from session.permissions import IsPsychologist
 from wellness.models import Feeling, Relation, WorkStudy, LifeEvent, CoupleTherapy, PreferablePrice
 
 User = get_user_model()
@@ -36,6 +37,7 @@ class VerifyCodeView(APIView):
 
         phone = serializer.validated_data['phone']
         code = serializer.validated_data['code']
+        is_psychologist = serializer.validated_data['is_psychologist']
 
         try:
             verification = PhoneVerification.objects.filter(phone=phone, code=code, is_active=True).latest('created_at')
@@ -44,7 +46,7 @@ class VerifyCodeView(APIView):
         except PhoneVerification.DoesNotExist:
             return Response({"error": "Неверный код"}, status=status.HTTP_400_BAD_REQUEST)
 
-        user, created = User.objects.get_or_create(phone_number=phone)
+        user, created = User.objects.get_or_create(phone_number=phone, user_type='psychologist' if is_psychologist else 'user')
         verification.is_active = False
         verification.save()
         token, created = Token.objects.get_or_create(user=user)
@@ -54,7 +56,8 @@ class VerifyCodeView(APIView):
             "user": {
                 "id": user.id,
                 "phone": user.phone_number,
-                "has_survey": user.profile.exists()
+                "has_survey": user.profile.exists(),
+                "user_type": user.user_type
             }
         }, status=status.HTTP_200_OK)
 
@@ -96,3 +99,18 @@ class ApplySurveyPsychologist(CreateAPIView):
         serializer.is_valid(raise_exception=True)
         survey = serializer.save()
         return Response(self.get_serializer(survey).data, status=201)
+
+
+class PsychologistSurveyUpdateView(UpdateAPIView):
+    serializer_class = PsychologistsSurveySerializer
+    permission_classes = [IsAuthenticated, IsPsychologist]
+    authentication_classes = [TokenAuthentication]
+
+    def get_object(self):
+        return PsychologistSurvey.objects.get(user_id=self.request.user.id)
+
+    def perform_update(self, serializer):
+        super().perform_update(serializer)
+        instance = serializer.instance
+        instance.is_approved = False
+        instance.save()

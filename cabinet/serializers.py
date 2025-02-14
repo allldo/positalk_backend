@@ -1,5 +1,5 @@
 from django.db.models import Model
-from rest_framework.fields import CharField, SerializerMethodField
+from rest_framework.fields import CharField, SerializerMethodField, BooleanField
 from rest_framework.serializers import Serializer, ModelSerializer
 
 from cabinet.models import Survey, Education
@@ -9,9 +9,11 @@ from wellness.models import Feeling, Relation, WorkStudy, LifeEvent, CoupleThera
 class PhoneSerializer(Serializer):
     phone = CharField(max_length=15)
 
+
 class CodeVerificationSerializer(Serializer):
     phone = CharField(max_length=15)
     code = CharField(max_length=6)
+    is_psychologist = BooleanField(default=False)
 
 
 class FeelingSerializer(ModelSerializer):
