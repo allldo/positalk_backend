@@ -8,6 +8,7 @@ from rest_framework.serializers import ModelSerializer
 from cabinet.models import PsychologistSurvey, Education, CustomUser
 from psy_store.models import GiftSession
 from wellness.models import PsychoTopic
+from wellness.serializers import PsychoTopicSerializer
 
 
 class GiftSessionSerializer(ModelSerializer):
@@ -23,11 +24,12 @@ class EducationSerializer(ModelSerializer):
 
 class PsychologistsSurveySerializer(ModelSerializer):
     # Принимаем psycho_topic как список строк
-    psycho_topic = ListField(child=CharField(), required=False, write_only=True)
+    psycho_topics = ListField(child=CharField(), required=False, write_only=True)
     # Для образования передаем JSON-строку
     education_psychologist = CharField(write_only=True, required=False)
     rating = DecimalField(read_only=True, max_digits=2, decimal_places=1)
     phone_number = CharField(max_length=45, write_only=True)
+    psycho_topic = PsychoTopicSerializer(many=True, read_only=True)
 
     class Meta:
         model = PsychologistSurvey
@@ -35,7 +37,7 @@ class PsychologistsSurveySerializer(ModelSerializer):
 
     def create(self, validated_data):
 
-        psycho_topics_data = validated_data.pop('psycho_topic', [])
+        psycho_topics_data = validated_data.pop('psycho_topics', [])
         if isinstance(psycho_topics_data, str):
             final_topics = [name.strip() for name in psycho_topics_data.split(",") if name.strip()]
         elif isinstance(psycho_topics_data, list):

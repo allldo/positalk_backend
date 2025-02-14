@@ -4,7 +4,7 @@ from rest_framework.fields import IntegerField, ListField, SlugField, Serializer
 from rest_framework.relations import PrimaryKeyRelatedField
 from rest_framework.serializers import ModelSerializer, Serializer
 
-from wellness.models import Article, Question, Answer, Block, Test
+from wellness.models import Article, Question, Answer, Block, Test, PsychoTopic
 
 
 class BlockNestedSerializer(ModelSerializer):
@@ -139,3 +139,9 @@ class AbuseSerializer(Serializer):
         zxc.questions.set(created_questions)
         raise ValidationError({'status': 'Все норм, делаем дальше'})
         return True
+
+
+class PsychoTopicSerializer(ModelSerializer):
+    class Meta:
+        model = PsychoTopic
+        fields = "__all__"
