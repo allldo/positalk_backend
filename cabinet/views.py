@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from rest_framework import status
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.authtoken.models import Token
-from rest_framework.generics import CreateAPIView, UpdateAPIView
+from rest_framework.generics import CreateAPIView, UpdateAPIView, RetrieveAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -114,3 +114,18 @@ class PsychologistSurveyUpdateView(UpdateAPIView):
         instance = serializer.instance
         instance.is_approved = False
         instance.save()
+
+
+class PsychologistSurveyGetView(RetrieveAPIView):
+    serializer_class = PsychologistsSurveySerializer
+    permission_classes = [IsAuthenticated, IsPsychologist]
+    authentication_classes = [TokenAuthentication]
+
+    def get_object(self):
+        return PsychologistSurvey.objects.get(user_id=self.request.user.id)
+
+
+class PsychologistSurveyCreateAPIView(CreateAPIView):
+    serializer_class = PsychologistsSurveySerializer
+    permission_classes = [IsAuthenticated, IsPsychologist]
+    authentication_classes = [TokenAuthentication]

@@ -298,3 +298,70 @@ class MyClientsListAPIView(ListAPIView):
             last_session_date=Subquery(last_session_qs, output_field=DateTimeField()),
             future_session_date=Subquery(future_session_qs, output_field=DateTimeField())
         )
+
+
+class MyBusyScheduleRangeAPIView(ListAPIView):
+    permission_classes = [IsAuthenticated, IsPsychologist]
+    authentication_classes = [TokenAuthentication]
+
+    def get(self, request):
+        psychologist = get_object_or_404(PsychologistSurvey, user__id=self.request.user.id)
+
+        start_date_str = request.query_params.get("start_date")
+        end_date_str = request.query_params.get("end_date")
+
+        try:
+            start_date = datetime.strptime(start_date_str, "%Y-%m-%d").date() if start_date_str else date.today()
+        except ValueError:
+            return Response({"detail": "Неверный формат start_date. Ожидается YYYY-MM-DD."}, status=400)
+        try:
+            end_date = datetime.strptime(end_date_str, "%Y-%m-%d").date() if end_date_str else start_date + timedelta(
+                days=7)
+        except ValueError:
+            return Response({"detail": "Неверный формат end_date. Ожидается YYYY-MM-DD."}, status=400)
+
+        timeslots = TimeSlot.objects.filter(psychologist=psychologist, is_available=True)
+
+        start_dt = datetime.combine(start_date, dt_time.min)
+        end_dt = datetime.combine(end_date + timedelta(days=1), dt_time.min)
+        sessions = Session.objects.filter(
+            psychologist=psychologist,
+            start_time__gte=start_dt,
+            start_time__lt=end_dt,
+            status='awaiting'
+        )
+
+        session_dict = {}
+        session_id = None
+        for session in sessions:
+            key = session.start_time.strftime('%Y-%m-%d %H:%M')
+            session_dict[key] = session
+
+        occurrences = []
+        current_date = start_date
+        while current_date <= end_date:
+            session = None
+            for slot in timeslots:
+                if current_date.weekday() == slot.day_of_week:
+                    occurrence_dt = datetime.combine(current_date, slot.time)
+                    occ_str = occurrence_dt.strftime('%Y-%m-%d %H:%M')
+                    status_slot = "free"
+                    if occ_str in session_dict:
+                        session = session_dict[occ_str]
+                        session_id = session.id
+                        status_slot = "busy"
+
+                    occurrences.append({
+                        'slot_id': slot.id,
+                        'day_of_week': slot.get_day_of_week_display(),
+                        'time': slot.time.strftime('%H:%M'),
+                        'datetime': occ_str,
+                        'status': status_slot,
+                        'session_id': session_id,
+                        'client_name': session.client.get_name() if session else None
+                    })
+            current_date += timedelta(days=1)
+
+        occurrences.sort(key=lambda x: x['datetime'])
+        response = {'slots': occurrences}
+        return Response(response)
