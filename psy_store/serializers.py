@@ -53,13 +53,10 @@ class PsychologistsSurveySerializer(ModelSerializer):
 
         psycho_topics = [PsychoTopic.objects.get_or_create(name=name)[0] for name in final_topics]
 
-        education_json = validated_data.pop('education_psychologist', '[]')
+        education_json = validated_data.pop('education_psychologist_write', '[]')
         phone_number = validated_data.pop('phone_number')
-        try:
-            education_data = json.loads(education_json)
-        except json.JSONDecodeError:
-            education_data = []
-        education_instances = [Education.objects.create(**edu) for edu in education_data]
+        education_instances = [Education.objects.create(**edu) for edu in education_json]
+
 
         user = CustomUser.objects.get_or_create(phone_number=phone_number, user_type='psychologist')[0]
 
@@ -68,3 +65,38 @@ class PsychologistsSurveySerializer(ModelSerializer):
         survey.education_psychologist.set(education_instances)
 
         return survey
+
+    def update(self, instance, validated_data):
+        # Обновление тем психологии, если они переданы
+        psycho_topics_data = validated_data.pop('psycho_topics', None)
+        if psycho_topics_data is not None:
+            if isinstance(psycho_topics_data, str):
+                final_topics = [name.strip() for name in psycho_topics_data.split(",") if name.strip()]
+            elif isinstance(psycho_topics_data, list):
+                final_topics = []
+                for item in psycho_topics_data:
+                    if isinstance(item, str) and ',' in item:
+                        final_topics.extend([name.strip() for name in item.split(",") if name.strip()])
+                    elif isinstance(item, str):
+                        final_topics.append(item.strip())
+                    else:
+                        final_topics.append(item)
+            else:
+                final_topics = []
+
+            psycho_topics = [PsychoTopic.objects.get_or_create(name=name)[0] for name in final_topics]
+            instance.psycho_topic.set(psycho_topics)
+
+        # Обновление образования психолога, если оно передано
+        education_data = validated_data.pop('education_psychologist_write', None)
+        if education_data is not None:
+            instance.education_psychologist.all().delete()  # Удаляем старые записи
+            education_instances = [Education.objects.create(**edu) for edu in education_data]
+            instance.education_psychologist.set(education_instances)
+
+        # Обновляем остальные поля
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+
+        instance.save()
+        return instance
