@@ -24,7 +24,7 @@ class EducationSerializer(ModelSerializer):
 
 class PsychologistsSurveySerializer(ModelSerializer):
     psycho_topics = ListField(child=CharField(), required=False, write_only=True)
-    education_psychologist_write = CharField(write_only=True, required=False)
+    education_psychologist_write = ListField(child=EducationSerializer(), required=False, write_only=True)
     rating = DecimalField(read_only=True, max_digits=2, decimal_places=1)
     phone_number = CharField(max_length=45, write_only=True)
     psycho_topic = PsychoTopicSerializer(many=True, read_only=True)
