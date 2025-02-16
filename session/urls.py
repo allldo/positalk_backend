@@ -3,7 +3,7 @@ from rest_framework.routers import DefaultRouter
 
 from session.views import PsychologistSessionListAPIView, TimeSlotViewSet, PsychologistScheduleRangeAPIView, \
     TransferSessionAPIView, CancelSessionAPIView, BookSessionAPIView, MyScheduleRangeAPIView, MyClientsListAPIView, \
-    MyBusyScheduleRangeAPIView
+    MyBusyScheduleRangeAPIView, ClientHasAPIView
 
 router = DefaultRouter()
 router.register(r'timeslots', TimeSlotViewSet, basename='timeslot')
@@ -11,6 +11,7 @@ urlpatterns = [
     path('psychologists-list/', PsychologistSessionListAPIView.as_view(), name='psychologist_list'),
     path('schedule/<int:psychologist_id>/', PsychologistScheduleRangeAPIView.as_view(), name='psychologist_schedule'),
 
+    path('has_schedule/', ClientHasAPIView.as_view(), name='has_schedule'),
 
     path('my_schedule/', MyScheduleRangeAPIView.as_view(), name='my_schedule'),
     path('my_client/', MyClientsListAPIView.as_view(), name='my_clients'),

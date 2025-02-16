@@ -32,20 +32,20 @@ class PsychologistSessionListAPIView(ListAPIView):
             client=user,
             psychologist=OuterRef('pk'),
             start_time__lt=now()
-        ).exclude(status='awaiting_payment').order_by('-start_time').values('start_time')[:1]
+        ).exclude(status__in=['awaiting_payment', 'cancelled']).order_by('-start_time').values('start_time')[:1]
 
         next_session_qs = Session.objects.filter(
             client=user,
             psychologist=OuterRef('pk'),
             start_time__gt=now()
-        ).exclude(status='awaiting_payment').order_by('start_time').values('start_time')[:1]
+        ).exclude(status__in=['awaiting_payment', 'cancelled']).order_by('start_time').values('start_time')[:1]
 
         qs = PsychologistSurvey.objects.filter(
             session__client=user
         ).distinct().annotate(
             last_session=Subquery(last_session_qs, output_field=DateTimeField()),
             next_session=Subquery(next_session_qs, output_field=DateTimeField())
-        )
+        ).order_by('next_session__start_time')
         return qs
 
 
@@ -63,6 +63,19 @@ class TimeSlotViewSet(ModelViewSet):
             return Response(time_slots, status=400)
         serializer = self.get_serializer(time_slots, many=True)
         return Response(serializer.data, status=201)
+
+
+class ClientHasAPIView(APIView):
+    def get(self, request, psychologist_id):
+        psychologist = get_object_or_404(PsychologistSurvey, id=psychologist_id)
+
+        if not Session.objects.filter(client=request.user, psychologist=psychologist, status='awaiting').exists():
+            return Response(
+                {"status": "False"},
+                status=200
+            )
+
+        return Response(data={'status': 'True'}, status=200)
 
 
 class PsychologistScheduleRangeAPIView(APIView):
