@@ -4,7 +4,7 @@ from random import choice
 
 from django.contrib.auth.models import AbstractUser
 from django.db.models import Model, CharField, DateTimeField, BooleanField, EmailField, ForeignKey, CASCADE, SET_NULL, \
-    ManyToManyField, PositiveIntegerField, TextField, ImageField, DecimalField, DurationField, TimeField
+    ManyToManyField, PositiveIntegerField, TextField, ImageField, DecimalField, DurationField, TimeField, DateField
 from django.utils.timezone import now, timedelta
 
 from cabinet.managers import UserManager
@@ -29,7 +29,11 @@ class CustomUser(AbstractUser):
         verbose_name_plural = "Пользователи"
 
     def get_name(self):
-        return Survey.objects.filter(user=self).first().nickname
+        survey = Survey.objects.filter(user=self).first()
+        try:
+            return survey.nickname
+        except AttributeError:
+            return "Без псевдонима"
 
     def get_psychologist(self):
         return PsychologistSurvey.objects.filter(user=self).first()
@@ -74,7 +78,7 @@ class Survey(Model):
     therapy_type = CharField(max_length=225, null=True, blank=True, verbose_name="Тип терапии")
     nickname = CharField(max_length=225, null=True, blank=True, verbose_name="Псевдоним")
     had_therapy_before = BooleanField(default=False, verbose_name="Был опыт терапии?")
-    date_of_birth = CharField(max_length=128, null=True, blank=True, verbose_name="Дата рождения")
+    date_of_birth = DateField(null=True, blank=True, verbose_name="Дата рождения")
     email = EmailField(unique=True, null=True, blank=True, verbose_name="Эл. почта")
     promo_code = CharField(max_length=225, null=True, blank=True, verbose_name="Промокод")
     feeling = ManyToManyField("wellness.Feeling", blank=True, related_name='feeling', verbose_name="Мое состояние")
@@ -120,7 +124,7 @@ class PsychologistSurvey(Model):
     notifications_phone = BooleanField(default=False)
     notifications_email = BooleanField(default=False)
 
-    date_of_birth = DateTimeField(null=True, blank=True)
+    date_of_birth = DateField(null=True, blank=True)
 
     language = CharField(max_length=155, default='Русский')
 

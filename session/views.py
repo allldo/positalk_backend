@@ -225,6 +225,8 @@ class MyScheduleRangeAPIView(APIView):
                         'session_id': session_id,
                         'client_name': session.client.get_name() if session else None
                     })
+                    session_id = None
+                    session = None
             current_date += timedelta(days=1)
 
         occurrences.sort(key=lambda x: x['datetime'])
