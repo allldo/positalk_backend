@@ -11,6 +11,7 @@ import os
 
 import django
 
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'positalk_backend.settings')
 django.setup()
 from session.middlewares import TokenAuthMiddleware
 
@@ -19,7 +20,6 @@ from django.core.asgi import get_asgi_application
 from session.routing import websocket_urlpatterns
 from channels.routing import URLRouter
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'positalk_backend.settings')
 
 application = ProtocolTypeRouter({
     "http": get_asgi_application(),
