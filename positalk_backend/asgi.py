@@ -11,9 +11,9 @@ import os
 
 import django
 
+django.setup()
 from session.middlewares import TokenAuthMiddleware
 
-django.setup()
 from channels.routing import ProtocolTypeRouter
 from django.core.asgi import get_asgi_application
 from session.routing import websocket_urlpatterns
