@@ -49,6 +49,10 @@ class VerifyCodeView(APIView):
         user, created = User.objects.get_or_create(phone_number=phone, user_type='psychologist' if is_psychologist else 'user')
         verification.is_active = False
         verification.save()
+        if is_psychologist and created:
+            PsychologistSurvey.objects.create(
+                user=user
+            )
         token, created = Token.objects.get_or_create(user=user)
 
         return Response({

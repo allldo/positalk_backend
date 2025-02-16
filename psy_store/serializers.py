@@ -1,8 +1,6 @@
 import json
 
-from jsonschema.exceptions import ValidationError
 from rest_framework.fields import DecimalField, ListField, CharField
-from rest_framework.relations import StringRelatedField
 from rest_framework.serializers import ModelSerializer
 
 from cabinet.models import PsychologistSurvey, Education, CustomUser
@@ -52,8 +50,10 @@ class PsychologistsSurveySerializer(ModelSerializer):
             final_topics = []
 
         psycho_topics = [PsychoTopic.objects.get_or_create(name=name)[0] for name in final_topics]
-
-        education_json = json.loads(validated_data.pop('education_psychologist_write', '[]'))
+        try:
+            education_json = json.loads(validated_data.pop('education_psychologist_write', '[]'))
+        except:
+            education_json = []
         phone_number = validated_data.pop('phone_number')
         education_instances = [Education.objects.create(**edu) for edu in education_json]
 
@@ -67,7 +67,6 @@ class PsychologistsSurveySerializer(ModelSerializer):
         return survey
 
     def update(self, instance, validated_data):
-        # Обновление тем психологии, если они переданы
         psycho_topics_data = validated_data.pop('psycho_topics', None)
         if psycho_topics_data is not None:
             if isinstance(psycho_topics_data, str):
@@ -89,7 +88,10 @@ class PsychologistsSurveySerializer(ModelSerializer):
 
         education_data = validated_data.pop('education_psychologist_write', None)
 
-        education_json = json.loads(education_data)
+        try:
+            education_json = json.loads(education_data)
+        except:
+            education_json = []
         if education_data is not None:
             instance.education_psychologist.all().delete()
             education_instances = [Education.objects.create(**edu) for edu in education_json]
