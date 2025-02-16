@@ -9,7 +9,7 @@ from rest_framework.views import APIView
 
 from cabinet.models import PhoneVerification, PsychologistSurvey
 from cabinet.serializers import PhoneSerializer, CodeVerificationSerializer, SurveyInfoSerializer, \
-    SurveySubmitSerializer
+    SurveySubmitSerializer, SelfSerializer
 from cabinet.services import send_sms, adjust_time_slot
 from psy_store.serializers import PsychologistsSurveySerializer
 from session.models import TimeSlot
@@ -149,3 +149,13 @@ class AdjustScheduleAPIView(APIView):
             results.append(result)
 
         return Response(data={"status": "success"}, status=200)
+
+
+class GetSelfUserView(APIView):
+
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+
+    def get(self, request):
+        user = self.request.user
+        return Response(data=SelfSerializer(user).data, status=200)

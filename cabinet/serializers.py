@@ -2,7 +2,7 @@ from django.db.models import Model
 from rest_framework.fields import CharField, SerializerMethodField, BooleanField
 from rest_framework.serializers import Serializer, ModelSerializer
 
-from cabinet.models import Survey, Education
+from cabinet.models import Survey, Education, CustomUser
 from wellness.models import Feeling, Relation, WorkStudy, LifeEvent, CoupleTherapy, PreferablePrice
 
 
@@ -50,7 +50,6 @@ class PreferablePriceSerializer(ModelSerializer):
     class Meta:
         model = PreferablePrice
         fields = ['id', 'price', 'experience', 'description', 'specialists_num', 'therapy_type']
-
 
 
 class SurveyInfoSerializer(Serializer):
@@ -103,3 +102,9 @@ class SurveySubmitSerializer(ModelSerializer):
 
         return survey
 
+
+class SelfSerializer(ModelSerializer):
+
+    class Meta:
+        model = CustomUser
+        fields = ['user_type', 'phone_number']
