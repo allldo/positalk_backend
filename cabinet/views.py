@@ -10,8 +10,9 @@ from rest_framework.views import APIView
 from cabinet.models import PhoneVerification, PsychologistSurvey
 from cabinet.serializers import PhoneSerializer, CodeVerificationSerializer, SurveyInfoSerializer, \
     SurveySubmitSerializer
-from cabinet.services import send_sms
+from cabinet.services import send_sms, adjust_time_slot
 from psy_store.serializers import PsychologistsSurveySerializer
+from session.models import TimeSlot
 from session.permissions import IsPsychologist
 from wellness.models import Feeling, Relation, WorkStudy, LifeEvent, CoupleTherapy, PreferablePrice
 
@@ -133,3 +134,18 @@ class PsychologistSurveyCreateAPIView(CreateAPIView):
     serializer_class = PsychologistsSurveySerializer
     permission_classes = [IsAuthenticated, IsPsychologist]
     authentication_classes = [TokenAuthentication]
+
+
+class AdjustScheduleAPIView(APIView):
+    permission_classes = [IsAuthenticated, IsPsychologist]
+    authentication_classes = [TokenAuthentication]
+
+    def post(self, request):
+        psychologist = request.user.get_psychologist()
+        results = []
+
+        for time_slot_data in request.data:
+            result = adjust_time_slot(psychologist, time_slot_data)
+            results.append(result)
+
+        return Response(data={"status": "success"}, status=200)

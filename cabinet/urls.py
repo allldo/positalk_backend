@@ -1,7 +1,7 @@
 from django.urls import path
 
 from .views import SendCodeView, VerifyCodeView, SurveyInfoView, SurveySubmitView, ApplySurveyPsychologist, \
-    PsychologistSurveyUpdateView, PsychologistSurveyGetView, PsychologistSurveyCreateAPIView
+    PsychologistSurveyUpdateView, PsychologistSurveyGetView, PsychologistSurveyCreateAPIView, AdjustScheduleAPIView
 
 urlpatterns = [
     path('send-code/', SendCodeView.as_view(), name='send_code'),
@@ -13,4 +13,6 @@ urlpatterns = [
     path('create-self-psychologist/', PsychologistSurveyCreateAPIView.as_view()),
     path('change-self-psychologist/', PsychologistSurveyUpdateView.as_view()),
     path('self-psychologist/', PsychologistSurveyGetView.as_view()),
+
+    path('adjust-schedule/', AdjustScheduleAPIView.as_view()),
 ]
