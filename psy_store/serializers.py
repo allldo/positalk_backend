@@ -24,7 +24,7 @@ class EducationSerializer(ModelSerializer):
 
 class PsychologistsSurveySerializer(ModelSerializer):
     psycho_topics = ListField(child=CharField(), required=False, write_only=True)
-    education_psychologist_write = ListField(child=EducationSerializer(), required=False, write_only=True)
+    education_psychologist_write = CharField(required=False, write_only=True)
     rating = DecimalField(read_only=True, max_digits=2, decimal_places=1)
     phone_number = CharField(max_length=45, write_only=True)
     psycho_topic = PsychoTopicSerializer(many=True, read_only=True)
@@ -53,7 +53,7 @@ class PsychologistsSurveySerializer(ModelSerializer):
 
         psycho_topics = [PsychoTopic.objects.get_or_create(name=name)[0] for name in final_topics]
 
-        education_json = validated_data.pop('education_psychologist_write', '[]')
+        education_json = json.loads(validated_data.pop('education_psychologist_write', '[]'))
         phone_number = validated_data.pop('phone_number')
         education_instances = [Education.objects.create(**edu) for edu in education_json]
 
@@ -87,14 +87,14 @@ class PsychologistsSurveySerializer(ModelSerializer):
             psycho_topics = [PsychoTopic.objects.get_or_create(name=name)[0] for name in final_topics]
             instance.psycho_topic.set(psycho_topics)
 
-        # Обновление образования психолога, если оно передано
         education_data = validated_data.pop('education_psychologist_write', None)
+
+        education_json = json.loads(education_data)
         if education_data is not None:
-            instance.education_psychologist.all().delete()  # Удаляем старые записи
-            education_instances = [Education.objects.create(**edu) for edu in education_data]
+            instance.education_psychologist.all().delete()
+            education_instances = [Education.objects.create(**edu) for edu in education_json]
             instance.education_psychologist.set(education_instances)
 
-        # Обновляем остальные поля
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
 
