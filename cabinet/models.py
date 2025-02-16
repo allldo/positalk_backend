@@ -120,7 +120,11 @@ class PsychologistSurvey(Model):
     notifications_email = BooleanField(default=False)
     date_of_birth = DateTimeField(null=True, blank=True)
     language = CharField(max_length=155, default='Русский')
-    # timezone = CharField(max_length=225, default="")
+
+    timezone = CharField(max_length=225, default="Europe/Moscow")
+
+    working_methods = TextField(blank=True)
+    couple_therapy = BooleanField(default=False)
     client_age = CharField(max_length=5, choices=AGE_CLIENT_CHOICES, default='18+')
     experience_with_identity_search = BooleanField(default=False)
     is_approved = BooleanField(default=False, verbose_name='Одобрен/а')
