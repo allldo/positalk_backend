@@ -368,7 +368,7 @@ class MyBusyScheduleRangeAPIView(ListAPIView):
 
                     occurrences.append({
                         'slot_id': slot.id,
-                        'day_of_week': slot.get_day_of_week_display(),
+                        'day_of_week': slot.day_of_week,
                         'time': slot.time.strftime('%H:%M'),
                         'datetime': occ_str,
                         'status': status_slot,
