@@ -45,7 +45,7 @@ class PsychologistSessionListAPIView(ListAPIView):
         ).distinct().annotate(
             last_session=Subquery(last_session_qs, output_field=DateTimeField()),
             next_session=Subquery(next_session_qs, output_field=DateTimeField())
-        ).order_by('next_session__start_time')
+        )
         return qs
 
 
