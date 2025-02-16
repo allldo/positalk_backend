@@ -85,7 +85,9 @@ class SurveySubmitSerializer(ModelSerializer):
         work_study_data = validated_data.pop('work_study', None)
         life_event_data = validated_data.pop('life_event', None)
         couple_therapy_data = validated_data.pop('couple_therapy', None)
-
+        survey_exists = Survey.objects.filter(user=user)
+        if survey_exists.exists():
+            return survey_exists.last()
         survey = Survey.objects.create(user=user, **validated_data)
 
         if feeling_data:
