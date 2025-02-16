@@ -77,11 +77,11 @@ class PsychologistScheduleRangeAPIView(APIView):
     def get(self, request, psychologist_id):
         psychologist = get_object_or_404(PsychologistSurvey, id=psychologist_id)
 
-        if not Session.objects.filter(client=request.user, psychologist=psychologist, status='awaiting').exists():
-            return Response(
-                {"detail": "У вас нет сессии с данным психологом."},
-                status=403
-            )
+        # if not Session.objects.filter(client=request.user, psychologist=psychologist, status='awaiting').exists():
+        #     return Response(
+        #         {"detail": "У вас нет сессии с данным психологом."},
+        #         status=403
+        #     )
 
         start_date_str = request.query_params.get("start_date")
         end_date_str = request.query_params.get("end_date")
