@@ -105,6 +105,11 @@ class SurveySubmitSerializer(ModelSerializer):
 
 class SelfSerializer(ModelSerializer):
 
+    has_survey = SerializerMethodField()
+
     class Meta:
         model = CustomUser
-        fields = ['user_type', 'phone_number']
+        fields = ['user_type', 'phone_number', 'has_survey']
+
+    def get_has_survey(self, obj):
+        return Survey.objects.filter(user=obj).exists()
