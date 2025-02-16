@@ -89,7 +89,7 @@ class Survey(Model):
     preferable_price = ForeignKey("wellness.PreferablePrice", on_delete=SET_NULL, null=True, blank=True, verbose_name="Предпочитаемая цена")
 
     def __str__(self):
-        return f"Анкета {self.nickname}, тип терапии {self.therapy_type}"
+        return f"Анкета {self.nickname}, тип терапии {self.therapy_type} user {self.user.phone_number}"
 
     class Meta:
         verbose_name = "Анкета"

@@ -1,5 +1,5 @@
 from django.db import models
-from django.db.models import CharField
+from django.db.models import CharField, Model, ForeignKey, CASCADE, DateTimeField, TextField, BooleanField
 
 from cabinet.models import PsychologistSurvey, CustomUser
 
@@ -48,3 +48,23 @@ class TimeSlot(models.Model):
 
     def __str__(self):
         return f"{self.get_day_of_week_display()} {self.time} от {self.psychologist} ({'Доступен' if self.is_available else 'Не доступен'})"
+
+
+class Chat(Model):
+    client = ForeignKey(CustomUser, on_delete=CASCADE, related_name="client_chats")
+    psychologist = ForeignKey(CustomUser, on_delete=CASCADE, related_name="psychologist_chats")
+    created_at = DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Chat between {self.client} and {self.psychologist}"
+
+
+class Message(Model):
+    chat = ForeignKey(Chat, on_delete=CASCADE, related_name="messages")
+    sender = ForeignKey(CustomUser, on_delete=CASCADE)
+    text = TextField()
+    created_at = DateTimeField(auto_now_add=True)
+    # is_read = BooleanField(default=False)
+
+    def __str__(self):
+        return f"Message from {self.sender} at {self.created_at}"

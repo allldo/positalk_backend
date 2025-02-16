@@ -40,6 +40,7 @@ CORS_ALLOW_HEADERS = list(default_headers) + [
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 CURRENT_DOMAIN = "https://backend.xn--g1acgdmcd1a.xn--p1ai"
 INSTALLED_APPS = [
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -109,8 +110,21 @@ TEMPLATES = [
         },
     },
 ]
-
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [
+                (
+                    os.environ.get("REDIS_HOST", "127.0.0.1"),
+                    int(os.environ.get("REDIS_PORT", 6379))
+                )
+            ],
+        },
+    },
+}
 WSGI_APPLICATION = 'positalk_backend.wsgi.application'
+ASGI_APPLICATION = 'positalk_backend.asgi.application'
 
 
 # Database

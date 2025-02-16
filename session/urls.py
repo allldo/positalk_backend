@@ -21,4 +21,9 @@ urlpatterns = [
     path('cancel/<int:session_id>/', CancelSessionAPIView.as_view(), name='cancel_session'),
     path('book/<int:psychologist_id>/', BookSessionAPIView.as_view(), name='book_session'),
     # path('verify-webhook/', WebhookVerifyView.as_view(), name='verify_webhook'),
+
+
+
+    #chat list
+    #create chat etc
 ] + router.urls
