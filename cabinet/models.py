@@ -125,6 +125,7 @@ class PsychologistSurvey(Model):
     language = CharField(max_length=155, default='Русский')
 
     timezone = CharField(max_length=225, default="Europe/Moscow")
+    session_duration = PositiveIntegerField(default=1, verbose_name="Длительность сессии") # в часах
 
     working_methods = TextField(blank=True)
     couple_therapy = BooleanField(default=False)
