@@ -154,8 +154,8 @@ class PsychologistScheduleRangeAPIView(APIView):
 
         occurrences.sort(key=lambda x: x['datetime'])
         response = {'slots': occurrences, 'psychologist_info':
-            {'psychologist_name': psychologist.name,
-             'psychologist_avatar': f"{settings.CURRENT_DOMAIN}{psychologist.photo.url}" }}
+            {'psychologist_name': psychologist.name,'psychologist_avatar': f"{settings.CURRENT_DOMAIN}{psychologist.photo.url}" },
+             'session_duration': psychologist.session_duration}
         return Response(response)
 
 
@@ -230,7 +230,7 @@ class MyScheduleRangeAPIView(APIView):
             current_date += timedelta(days=1)
 
         occurrences.sort(key=lambda x: x['datetime'])
-        response = {'slots': occurrences}
+        response = {'slots': occurrences, 'session_duration': psychologist.session_duration}
         return Response(response)
 
 
@@ -378,5 +378,5 @@ class MyBusyScheduleRangeAPIView(ListAPIView):
             current_date += timedelta(days=1)
 
         occurrences.sort(key=lambda x: x['datetime'])
-        response = {'slots': occurrences}
+        response = {'slots': occurrences, 'session_duration': psychologist.session_duration}
         return Response(response)
