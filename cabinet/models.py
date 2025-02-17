@@ -138,8 +138,8 @@ class PsychologistSurvey(Model):
 
     is_approved = BooleanField(default=False, verbose_name='Одобрен/а')
     def __str__(self):
-        return f"Психолог {self.name}, опыт {self.experience}, рейтинг - {self.rating} - user {self.user}"
-
+        # return f"Психолог {self.name}, опыт {self.experience}, рейтинг - {self.rating} - user {self.user}"
+        return f"Психолог {self.name}; Одобрен" if self.is_approved else f"Психолог {self.name}; Не одобрен"
     class Meta:
         verbose_name = "Психолог"
         verbose_name_plural = "Психологи"

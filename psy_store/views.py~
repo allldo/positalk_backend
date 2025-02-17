@@ -17,7 +17,7 @@ class GiftSessionListAPIView(ListAPIView):
 
 class PsychologistsListAPIView(ListAPIView):
     serializer_class = PsychologistsSurveySerializer
-    queryset = PsychologistSurvey.objects.prefetch_related('psycho_topic').filter(is_approved=True)
+    queryset = PsychologistSurvey.objects.prefetch_related('psycho_topic')
     # queryset = PsychologistSurvey.objects.all()
     permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]

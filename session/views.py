@@ -41,7 +41,7 @@ class PsychologistSessionListAPIView(ListAPIView):
         ).exclude(status__in=['awaiting_payment', 'cancelled']).order_by('start_time').values('start_time')[:1]
 
         qs = PsychologistSurvey.objects.filter(
-            session__client=user
+            session__client=user, is_approved=True
         ).distinct().annotate(
             last_session=Subquery(last_session_qs, output_field=DateTimeField()),
             next_session=Subquery(next_session_qs, output_field=DateTimeField())
