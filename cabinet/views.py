@@ -142,11 +142,12 @@ class AdjustScheduleAPIView(APIView):
 
     def post(self, request):
         psychologist = request.user.get_psychologist()
-        results = []
-
-        for time_slot_data in request.data:
-            result = adjust_time_slot(psychologist, time_slot_data)
-            results.append(result)
+        adjust_time_slot(psychologist, request.data)
+        # results = []
+        #
+        # for time_slot_data in request.data:
+        #     result = adjust_time_slot(psychologist, time_slot_data)
+        #     results.append(result)
 
         return Response(data={"status": "success"}, status=200)
 
