@@ -16,6 +16,7 @@ class TokenAuthMiddleware(BaseMiddleware):
             user = await self.get_user_by_token(token_key)
             if user:
                 scope["user"] = user
+                scope["nickname"] = await database_sync_to_async(user.get_name)()
 
         return await super().__call__(scope, receive, send)
 
