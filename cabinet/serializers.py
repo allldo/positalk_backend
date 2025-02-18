@@ -1,4 +1,7 @@
+from datetime import date
+
 from django.db.models import Model
+from rest_framework.exceptions import ValidationError
 from rest_framework.fields import CharField, SerializerMethodField, BooleanField
 from rest_framework.serializers import Serializer, ModelSerializer
 
@@ -87,6 +90,7 @@ class SurveySubmitSerializer(ModelSerializer):
         survey_exists = Survey.objects.filter(user=user)
         if survey_exists.exists():
             return survey_exists.last()
+
         survey = Survey.objects.create(user=user, **validated_data)
 
         if feeling_data:
@@ -101,6 +105,15 @@ class SurveySubmitSerializer(ModelSerializer):
             survey.couple_therapy.set(couple_therapy_data)
 
         return survey
+
+    def validate_date_of_birth(self, date_of_birth):
+        today = date.today()
+        if date_of_birth > today:
+            raise ValidationError("Date of birth cannot be in the future.")
+        if today.year - date_of_birth.year > 100:
+            raise ValidationError("Date of birth cannot be more than 100 years ago.")
+        return date_of_birth
+
 
 
 class SelfSerializer(ModelSerializer):

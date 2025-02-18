@@ -53,13 +53,19 @@ class VerifyCodeView(APIView):
         except PhoneVerification.DoesNotExist:
             return Response({"error": "Неверный код"}, status=status.HTTP_400_BAD_REQUEST)
 
-        user, created = User.objects.get_or_create(phone_number=phone, user_type='psychologist' if is_psychologist else 'user')
+        user, created = User.objects.get_or_create(phone_number=phone)
         verification.is_active = False
         verification.save()
         if is_psychologist and created:
+            user.user_type = 'psychologist'
+            user.save()
             PsychologistSurvey.objects.create(
                 user=user
             )
+        if not is_psychologist and created:
+            user.user_type = 'user'
+            user.save()
+
         token, created = Token.objects.get_or_create(user=user)
 
         return Response({
