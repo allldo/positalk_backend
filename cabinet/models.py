@@ -59,7 +59,7 @@ class CustomUser(AbstractUser):
         return ""
 
 class PhoneVerification(Model):
-    phone = CharField(max_length=15, verbose_name="Номер телефона")
+    phone = CharField(max_length=19, verbose_name="Номер телефона")
     code = CharField(max_length=6, verbose_name="Код")
     created_at = DateTimeField(auto_now_add=True)
     is_active = BooleanField(default=True, verbose_name="Активный код")
@@ -96,6 +96,7 @@ class Survey(Model):
     user = ForeignKey(CustomUser, on_delete=CASCADE, related_name="profile", verbose_name="Пользователь")
     therapy_type = CharField(max_length=225, null=True, blank=True, verbose_name="Тип терапии")
     nickname = CharField(max_length=225, null=True, blank=True, verbose_name="Псевдоним")
+    photo = ImageField('client_photos/', null=True, blank=True,)
     had_therapy_before = BooleanField(default=False, verbose_name="Был опыт терапии?")
     date_of_birth = DateField(null=True, blank=True, verbose_name="Дата рождения")
     email = EmailField(unique=True, null=True, blank=True, verbose_name="Эл. почта")

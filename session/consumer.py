@@ -25,7 +25,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             await self.close()
             return
         self.user = self.scope['user']
-
+        self.user_id = self.scope['user'].id
         await self.channel_layer.group_add(self.group_name, self.channel_name)
         await self.accept()
 
@@ -53,6 +53,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 'type': 'chat_message',
                 'text': message,
                 'sender': sender,
+                'id': self.user_id,
                 'created_at': created_at
             }
         )
@@ -61,7 +62,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
         await self.send(text_data=json.dumps({
             'text': event['text'],
             'sender': event['sender'],
-            'created_at': event['created_at']
+            'created_at': event['created_at'],
+            'id': event['id']
         }))
 
     @database_sync_to_async

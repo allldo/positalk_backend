@@ -109,7 +109,7 @@ class SelfSerializer(ModelSerializer):
 
     class Meta:
         model = CustomUser
-        fields = ['user_type', 'phone_number', 'has_survey']
+        fields = ['id', 'user_type', 'phone_number', 'has_survey']
 
     def get_has_survey(self, obj):
         return Survey.objects.filter(user=obj).exists()

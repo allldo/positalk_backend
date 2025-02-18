@@ -7,6 +7,15 @@ from django.core.exceptions import ObjectDoesNotExist
 from session.models import TimeSlot
 
 
+
+def validate_phone_number(phone_number):
+    phone_number = phone_number.replace(" ", "")
+    if len(phone_number) != 12 or not phone_number.isdigit():
+        raise ValueError("Invalid phone number")
+    if phone_number[0] != "7":
+        raise ValueError("Invalid phone number")
+    return f"+{phone_number[:4]} {phone_number[4:7]} {phone_number[7:10]} {phone_number[10:]}"
+
 def send_sms(phone_number, code):
     headers = {
         "Authorization": f"Bearer {settings.SMS_KEY}"

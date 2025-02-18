@@ -1,8 +1,9 @@
 import json
 
+from jsonschema.exceptions import ValidationError
 from rest_framework.fields import DecimalField, ListField, CharField
 from rest_framework.serializers import ModelSerializer
-
+from django.core.validators import validate_email
 from cabinet.models import PsychologistSurvey, Education, CustomUser
 from psy_store.models import GiftSession
 from wellness.models import PsychoTopic
@@ -97,6 +98,16 @@ class PsychologistsSurveySerializer(ModelSerializer):
             instance.education_psychologist.all().delete()
             education_instances = [Education.objects.create(**edu) for edu in education_json]
             instance.education_psychologist.set(education_instances)
+
+        email = validated_data.get('email')
+        if email or email == "":
+            try:
+                validate_email(email)
+            except ValidationError:
+                raise ValidationError("Invalid email address")
+
+            if PsychologistSurvey.objects.filter(email=email).exclude(id=instance.id).exists():
+                raise ValidationError("this email already exists")
 
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
