@@ -7,11 +7,11 @@ from wellness.models import Feeling, Relation, WorkStudy, LifeEvent, CoupleThera
 
 
 class PhoneSerializer(Serializer):
-    phone = CharField(max_length=15)
+    phone = CharField(max_length=30)
 
 
 class CodeVerificationSerializer(Serializer):
-    phone = CharField(max_length=15)
+    phone = CharField(max_length=30)
     code = CharField(max_length=6)
     is_psychologist = BooleanField(default=False)
 

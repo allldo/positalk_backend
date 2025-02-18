@@ -2,19 +2,16 @@ import json
 
 import requests
 from django.conf import settings
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import  ValidationError
 
 from session.models import TimeSlot
 
 
-
 def validate_phone_number(phone_number):
-    phone_number = phone_number.replace(" ", "")
-    if len(phone_number) != 12 or not phone_number.isdigit():
-        raise ValueError("Invalid phone number")
-    if phone_number[0] != "7":
-        raise ValueError("Invalid phone number")
-    return f"+{phone_number[:4]} {phone_number[4:7]} {phone_number[7:10]} {phone_number[10:]}"
+    phone_number = ''.join(filter(lambda x: x.isdigit() or x == '+', phone_number))
+    if len(phone_number) < 12 or len(phone_number) > 14:
+        raise ValidationError("incorrect phone number")
+    return phone_number
 
 def send_sms(phone_number, code):
     headers = {

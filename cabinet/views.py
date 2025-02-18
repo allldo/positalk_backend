@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
 from rest_framework import status
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.authtoken.models import Token
@@ -10,7 +11,7 @@ from rest_framework.views import APIView
 from cabinet.models import PhoneVerification, PsychologistSurvey
 from cabinet.serializers import PhoneSerializer, CodeVerificationSerializer, SurveyInfoSerializer, \
     SurveySubmitSerializer, SelfSerializer
-from cabinet.services import send_sms, adjust_time_slot
+from cabinet.services import send_sms, adjust_time_slot, validate_phone_number
 from psy_store.serializers import PsychologistsSurveySerializer
 from session.models import TimeSlot
 from session.permissions import IsPsychologist
@@ -22,12 +23,15 @@ class SendCodeView(APIView):
     def post(self, request):
         serializer = PhoneSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        phone = serializer.validated_data['phone']
+        try:
+            phone = validate_phone_number(serializer.validated_data['phone'])
+        except ValidationError as e:
+            return Response({"error": e}, status=400)
         code = PhoneVerification.generate_code()
         PhoneVerification.objects.filter(phone=phone).update(is_active=False)
         PhoneVerification.objects.create(phone=phone, code=code)
         # send_sms(phone, code)
-        return Response({"message": code}, status=status.HTTP_200_OK)
+        return Response({"message": code}, status=200)
         # return Response({"message": "Код отправлен!"}, status=status.HTTP_200_OK)
 
 
@@ -35,8 +39,10 @@ class VerifyCodeView(APIView):
     def post(self, request):
         serializer = CodeVerificationSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-
-        phone = serializer.validated_data['phone']
+        try:
+            phone = validate_phone_number(serializer.validated_data['phone'])
+        except ValidationError as e:
+            return Response({"error": e}, status=400)
         code = serializer.validated_data['code']
         is_psychologist = serializer.validated_data['is_psychologist']
 
