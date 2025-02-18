@@ -1,7 +1,6 @@
 import random
-from email.policy import default
-from random import choice
 
+from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.db.models import Model, CharField, DateTimeField, BooleanField, EmailField, ForeignKey, CASCADE, SET_NULL, \
     ManyToManyField, PositiveIntegerField, TextField, ImageField, DecimalField, DurationField, TimeField, DateField
@@ -29,15 +28,35 @@ class CustomUser(AbstractUser):
         verbose_name_plural = "Пользователи"
 
     def get_name(self):
-        survey = Survey.objects.filter(user=self).first()
-        try:
-            return survey.nickname
-        except AttributeError:
-            return "Без псевдонима"
+        if self.user_type == 'user':
+            survey = Survey.objects.filter(user=self).first()
+            try:
+                return survey.nickname
+            except AttributeError:
+                return "Без псевдонима"
+        if self.user_type == 'psychologist':
+            psychologist = self.get_psychologist()
+            if psychologist:
+                return psychologist.name
+        return None
 
     def get_psychologist(self):
-        return PsychologistSurvey.objects.filter(user=self).first()
+        try:
+            return PsychologistSurvey.objects.filter(user=self).first()
+        except PsychologistSurvey.DoesNotExist:
+            return None
 
+    def get_psychologist_name(self):
+        psychologist = self.get_psychologist()
+        if psychologist:
+            return psychologist.name
+        return "Без псевдонима"
+
+    def get_psychologist_avatar(self):
+        psychologist = self.get_psychologist()
+        if psychologist:
+            return f"{settings.CURRENT_DOMAIN}{psychologist.photo.url}" if psychologist.photo else ""
+        return ""
 
 class PhoneVerification(Model):
     phone = CharField(max_length=15, verbose_name="Номер телефона")

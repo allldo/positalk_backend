@@ -2,7 +2,7 @@ from datetime import date, datetime, timedelta, time as dt_time
 
 from celery.bin.control import status
 from django.conf import settings
-from django.db.models import OuterRef, Subquery, DateTimeField, Count
+from django.db.models import OuterRef, Subquery, DateTimeField, Count, Q
 from django.utils.timezone import now
 from drf_spectacular.utils import extend_schema
 from rest_framework.authentication import TokenAuthentication
@@ -13,10 +13,10 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
 from cabinet.models import PsychologistSurvey
-from session.models import TimeSlot, Session
+from session.models import TimeSlot, Session, Chat
 from session.permissions import IsPsychologist
 from session.serializers import TimeSlotSerializer, PsychologistSessionSerializer, SessionDateSerializer, \
-    PsychologistClientSerializer
+    PsychologistClientSerializer, ChatPsychologistSerializer, ChatClientSerializer
 from session.service import create_time_slot
 
 
@@ -380,3 +380,16 @@ class MyBusyScheduleRangeAPIView(ListAPIView):
         occurrences.sort(key=lambda x: x['datetime'])
         response = {'slots': occurrences, 'session_duration': psychologist.session_duration}
         return Response(response)
+
+
+class ChatListAPIView(ListAPIView):
+    # serializer_class = ChatSerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+
+    def list(self, request, *args, **kwargs):
+        if self.request.user.user_type == 'psychologist':
+            return Response(ChatPsychologistSerializer(Chat.objects.filter(psychologist=self.request.user), many=True).data)
+        if self.request.user.user_type == 'user':
+            return Response(ChatClientSerializer(Chat.objects.filter(client=self.request.user), many=True).data)
+        return Response(data={"message": "Chats not found"}, status=404)

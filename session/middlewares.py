@@ -1,17 +1,11 @@
-import logging
-from urllib.parse import parse_qs
-
-from asgiref.sync import sync_to_async
-from channels.auth import AuthMiddleware
-from channels.db import database_sync_to_async
 from channels.middleware import BaseMiddleware
-from rest_framework.authtoken.models import Token
 from django.contrib.auth.models import AnonymousUser
+from rest_framework.authtoken.models import Token
 from django.db import close_old_connections
-
+from channels.db import database_sync_to_async
+import logging
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(filename='positalk.log', level=logging.INFO)
 
 class TokenAuthMiddleware(BaseMiddleware):
     def __init__(self, inner):
@@ -21,15 +15,29 @@ class TokenAuthMiddleware(BaseMiddleware):
         close_old_connections()
         scope["user"] = AnonymousUser()
         headers = dict(scope.get("headers", []))
-        auth_header = headers.get(b"authorization", b"").decode("utf-8")
-        if auth_header.startswith("Token "):
-            token_key = auth_header.split("Token ")[1]
+
+        # Проверяем заголовок `Sec-WebSocket-Protocol`
+        subprotocol = headers.get(b"sec-websocket-protocol", b"").decode("utf-8")
+
+        if subprotocol.startswith("Token "):
+            token_key = subprotocol.split("Token ")[1]
             user = await self.get_user_by_token(token_key)
+
             if user:
                 scope["user"] = user
                 scope['nickname'] = await database_sync_to_async(user.get_name)()
+                logger.info(f"nickname: {scope['nickname']}")
+            else:
+                logger.warning(f"Invalid token: {token_key}")
+                await send({"type": "websocket.close"})
+                return
 
-        return await super().__call__(scope, receive, send)
+        async def send_with_protocol(message):
+            if message["type"] == "websocket.accept":
+                message["subprotocol"] = subprotocol
+            await send(message)
+
+        return await super().__call__(scope, receive, send_with_protocol)
 
     @database_sync_to_async
     def get_user_by_token(self, token_key):

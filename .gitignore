@@ -5,3 +5,4 @@ __pycache__/
 db.sqlite3
 .idea/
 positalk.log
+positalk_backend/local_settings.py
