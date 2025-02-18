@@ -3,7 +3,7 @@ from rest_framework.routers import DefaultRouter
 
 from session.views import PsychologistSessionListAPIView, TimeSlotViewSet, PsychologistScheduleRangeAPIView, \
     TransferSessionAPIView, CancelSessionAPIView, BookSessionAPIView, MyScheduleRangeAPIView, MyClientsListAPIView, \
-    MyBusyScheduleRangeAPIView, ClientHasAPIView, ChatListAPIView
+    MyBusyScheduleRangeAPIView, ClientHasAPIView, ChatListAPIView, MessageListAPIView
 
 router = DefaultRouter()
 router.register(r'timeslots', TimeSlotViewSet, basename='timeslot')
@@ -26,5 +26,6 @@ urlpatterns = [
 
     #chat list
     path('chat-list/', ChatListAPIView.as_view(), name='chat_list'),
-    #create chat etc
+    path('message-list/<int:chat_id>/', MessageListAPIView.as_view(), name='messages')
+                  #create chat etc
 ] + router.urls

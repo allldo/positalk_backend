@@ -13,10 +13,11 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
 from cabinet.models import PsychologistSurvey
-from session.models import TimeSlot, Session, Chat
+from session.models import TimeSlot, Session, Chat, Message
+from session.paginators import MessagePagination
 from session.permissions import IsPsychologist
 from session.serializers import TimeSlotSerializer, PsychologistSessionSerializer, SessionDateSerializer, \
-    PsychologistClientSerializer, ChatPsychologistSerializer, ChatClientSerializer
+    PsychologistClientSerializer, ChatPsychologistSerializer, ChatClientSerializer, MessageSerializer
 from session.service import create_time_slot
 
 
@@ -393,3 +394,13 @@ class ChatListAPIView(ListAPIView):
         if self.request.user.user_type == 'user':
             return Response(ChatClientSerializer(Chat.objects.filter(client=self.request.user), many=True).data)
         return Response(data={"message": "Chats not found"}, status=404)
+
+
+class MessageListAPIView(ListAPIView):
+    serializer_class = MessageSerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+    pagination_class = MessagePagination
+
+    def get_queryset(self):
+        return Message.objects.filter(chat=self.kwargs['chat_id']).order_by('-created_at')
