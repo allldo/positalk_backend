@@ -39,7 +39,7 @@ CORS_ALLOW_HEADERS = list(default_headers) + [
 ]
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 CURRENT_DOMAIN = "https://backend.xn--g1acgdmcd1a.xn--p1ai"
-INSTALLED_APPS = [
+INSTALLED_APPS =[
     'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -70,7 +70,6 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-
 AUTH_USER_MODEL = "cabinet.CustomUser"
 
 REST_FRAMEWORK = {
@@ -175,8 +174,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 STATIC_URL = 'static/'
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-# Default primary key field type
+STATIC_ROOT = BASE_DIR / "static"
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
