@@ -6,7 +6,7 @@ from django.db.models import OuterRef, Subquery, DateTimeField, Count, Q
 from django.utils.timezone import now
 from drf_spectacular.utils import extend_schema
 from rest_framework.authentication import TokenAuthentication
-from rest_framework.generics import ListAPIView, get_object_or_404
+from rest_framework.generics import ListAPIView, get_object_or_404, CreateAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -17,8 +17,9 @@ from session.models import TimeSlot, Session, Chat, Message
 from session.paginators import MessagePagination
 from session.permissions import IsPsychologist
 from session.serializers import TimeSlotSerializer, PsychologistSessionSerializer, SessionDateSerializer, \
-    PsychologistClientSerializer, ChatPsychologistSerializer, ChatClientSerializer, MessageSerializer
-from session.service import create_time_slot
+    PsychologistClientSerializer, ChatPsychologistSerializer, ChatClientSerializer, MessageSerializer, \
+    CreateChatSerializer
+from session.service import create_time_slot, is_time_slot_available
 
 
 class PsychologistSessionListAPIView(ListAPIView):
@@ -195,7 +196,7 @@ class MyScheduleRangeAPIView(APIView):
             start_time__gte=start_dt,
             start_time__lt=end_dt,
 
-        ).exclude(status='awaiting_payment')
+        ).exclude(status__in=['awaiting_payment', 'cancelled'])
 
         session_dict = {}
         session_id = None
@@ -243,11 +244,18 @@ class TransferSessionAPIView(APIView):
     def post(self, request, session_id):
         session = Session.objects.get(id=session_id, client=request.user, status='awaiting')
         serializer = SessionDateSerializer(data=request.data)
+        reason = ""
         if serializer.is_valid():
-            session.start_time = serializer.data.get('start_time')
-            session.end_time = serializer.data.get('end_time')
-            session.save()
-            return Response(data={'status': 'success'}, status=200)
+            is_available, reason = is_time_slot_available(session.psychologist, serializer.data.get('start_time'), serializer.data.get('end_time'),
+                               request.user)
+
+            if is_available:
+                session.start_time = serializer.data.get('start_time')
+                session.end_time = serializer.data.get('end_time')
+                session.save()
+                return Response(data={'status': 'success'}, status=200)
+
+        return Response(data={'status': 'fail', 'reason': reason}, status=400)
 
 
 class CancelSessionAPIView(APIView):
@@ -272,13 +280,17 @@ class BookSessionAPIView(APIView):
         psychologist = PsychologistSurvey.objects.get(id=psychologist_id)
 
         serializer = SessionDateSerializer(data=request.data)
+        reason = ""
         if serializer.is_valid():
-            session = Session.objects.create(psychologist=psychologist,
-                                   client=request.user, start_time = serializer.data.get('start_time'),
-                                   end_time = serializer.data.get('end_time'), status='awaiting_payment')
+            is_available, reason = is_time_slot_available(psychologist, serializer.data.get('start_time'), serializer.data.get('end_time'),
+                                   request.user)
+            if is_available:
+                session = Session.objects.create(psychologist=psychologist,
+                                       client=request.user, start_time = serializer.data.get('start_time'),
+                                       end_time = serializer.data.get('end_time'), status='awaiting_payment')
 
-            return Response(data={'status': 'success', "session_id": session.id}, status=200)
-        return Response(data={'status': 'fail'}, status=200)
+                return Response(data={'status': 'success', "session_id": session.id}, status=200)
+        return Response(data={'status': 'fail', 'reason': reason}, status=200)
 
 
 class MyClientsListAPIView(ListAPIView):
@@ -404,3 +416,9 @@ class MessageListAPIView(ListAPIView):
 
     def get_queryset(self):
         return Message.objects.filter(chat=self.kwargs['chat_id']).order_by('-created_at')
+
+
+class CreateChatAPIView(CreateAPIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+    serializer_class = CreateChatSerializer

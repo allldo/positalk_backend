@@ -1,4 +1,3 @@
-from django.db.models import Model
 from rest_framework.fields import DateTimeField, SerializerMethodField, IntegerField
 from rest_framework.serializers import ModelSerializer, Serializer
 
@@ -107,3 +106,9 @@ class ChatClientSerializer(ModelSerializer):
         last_message = obj.messages.last()
         if last_message:
             return MessageSerializer(last_message).data
+
+
+class CreateChatSerializer(ModelSerializer):
+    class Meta:
+        model = Chat
+        fields = "__all__"

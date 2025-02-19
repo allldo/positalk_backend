@@ -131,7 +131,6 @@ class PsychologistSurvey(Model):
     user = ForeignKey(CustomUser, on_delete=CASCADE, related_name="psycho_profile", verbose_name="Пользователь")
     education_psychologist = ManyToManyField(Education, blank=True, verbose_name="Образование")
     name = CharField(max_length=225, null=True, blank=True, verbose_name="Имя")
-    age = PositiveIntegerField(default=18, null=True, blank=True, verbose_name="Возраст")
     label = CharField(max_length=225, null=True, blank=True, verbose_name="Подпись")
     experience = PositiveIntegerField(null=True, blank=True, verbose_name="Опыт")
     rating = DecimalField(max_digits=2,decimal_places=1, null=True, blank=True, verbose_name="Рейтинг")
