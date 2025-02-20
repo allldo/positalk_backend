@@ -7,9 +7,11 @@ from rest_framework.fields import IntegerField, CharField, DecimalField
 from rest_framework.serializers import Serializer
 from pytz import timezone
 
+from session.models import Session
+
 
 class LinkPaymentSerializer(Serializer):
-    customer_phone = CharField(max_length=15)
+    customer_phone = CharField(max_length=15, required=False, allow_blank=True, allow_null=True)
     title = CharField(max_length=255)
     object_id = IntegerField()
     price = DecimalField(max_digits=10, decimal_places=2)
@@ -22,11 +24,16 @@ class LinkPaymentSerializer(Serializer):
         # urlNotification
         # urlSuccess
         # urlReturn
+        session_id = validated_data.get("object_id", None)
+        phone_number = None
+        if session_id:
+            session = Session.objects.filter(id=session_id).first()
+            phone_number = session.client.phone_number
         data = {
             "do": "link",
             "callbackType": "json",
             "order_id": transaction_id,
-            "customer_phone": validated_data["customer_phone"],
+            "customer_phone": phone_number,
             "installments_disabled": "1",
             "link_expired": link_expired_time.strftime("%Y-%m-%d %H:%M"),
             "products[0][name]": validated_data["title"],
