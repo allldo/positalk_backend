@@ -20,7 +20,7 @@ class GiftSessionSerializer(ModelSerializer):
 class EducationSerializer(ModelSerializer):
     class Meta:
         model = Education
-        fields = ['id', 'year', 'text']
+        fields = ['id', 'year', 'text', 'diploma']
 
 class PsychologistsSurveySerializer(ModelSerializer):
     psycho_topics = ListField(child=CharField(), required=False, write_only=True)
