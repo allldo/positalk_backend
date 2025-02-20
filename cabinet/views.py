@@ -3,8 +3,8 @@ from django.core.exceptions import ValidationError
 from rest_framework import status
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.authtoken.models import Token
-from rest_framework.generics import CreateAPIView, UpdateAPIView, RetrieveAPIView
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.generics import CreateAPIView, UpdateAPIView, RetrieveAPIView, ListCreateAPIView
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -12,7 +12,7 @@ from cabinet.models import PhoneVerification, PsychologistSurvey
 from cabinet.serializers import PhoneSerializer, CodeVerificationSerializer, SurveyInfoSerializer, \
     SurveySubmitSerializer, SelfSerializer
 from cabinet.services import send_sms, adjust_time_slot, validate_phone_number
-from psy_store.serializers import PsychologistsSurveySerializer
+from psy_store.serializers import PsychologistsSurveySerializer, EducationSerializer
 from session.models import TimeSlot
 from session.permissions import IsPsychologist
 from wellness.models import Feeling, Relation, WorkStudy, LifeEvent, CoupleTherapy, PreferablePrice
@@ -127,11 +127,14 @@ class PsychologistSurveyUpdateView(UpdateAPIView):
         return PsychologistSurvey.objects.get(user_id=self.request.user.id)
 
     def perform_update(self, serializer):
-        super().perform_update(serializer)
+        serializer.save(request=self.request)
+
         instance = serializer.instance
         instance.is_approved = False
         instance.save()
 
+    def perform_create(self, serializer):
+        serializer.save(request=self.request)
 
 class PsychologistSurveyGetView(RetrieveAPIView):
     serializer_class = PsychologistsSurveySerializer
@@ -172,3 +175,16 @@ class GetSelfUserView(APIView):
     def get(self, request):
         user = self.request.user
         return Response(data=SelfSerializer(user).data, status=200)
+
+
+class PsychologistEducationView(ListCreateAPIView):
+    serializer_class = EducationSerializer
+    permission_classes = [AllowAny]
+    authentication_classes = [TokenAuthentication]
+
+    def create(self, request, *args, **kwargs):
+        many = isinstance(request.data, list)
+        serializer = self.get_serializer(data=request.data, many=many)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)

@@ -2,7 +2,7 @@ from django.urls import path
 
 from .views import SendCodeView, VerifyCodeView, SurveyInfoView, SurveySubmitView, ApplySurveyPsychologist, \
     PsychologistSurveyUpdateView, PsychologistSurveyGetView, PsychologistSurveyCreateAPIView, AdjustScheduleAPIView \
-    , GetSelfUserView
+    , GetSelfUserView, PsychologistEducationView
 
 urlpatterns = [
     path('send-code/', SendCodeView.as_view(), name='send_code'),
@@ -17,5 +17,6 @@ urlpatterns = [
     path('change-self-psychologist/', PsychologistSurveyUpdateView.as_view()),
     path('self-psychologist/', PsychologistSurveyGetView.as_view()),
 
+    path('psychologist_education/', PsychologistEducationView.as_view()),
     path('adjust-schedule/', AdjustScheduleAPIView.as_view()),
 ]

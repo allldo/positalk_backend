@@ -22,6 +22,7 @@ class EducationSerializer(ModelSerializer):
         model = Education
         fields = ['id', 'year', 'text', 'diploma']
 
+
 class PsychologistsSurveySerializer(ModelSerializer):
     psycho_topics = ListField(child=CharField(), required=False, write_only=True)
     education_psychologist_write = CharField(required=False, write_only=True)
@@ -56,20 +57,18 @@ class PsychologistsSurveySerializer(ModelSerializer):
             final_topics = []
 
         psycho_topics = [PsychoTopic.objects.get_or_create(name=name)[0] for name in final_topics]
-        try:
-            education_json = json.loads(validated_data.pop('education_psychologist_write', '[]'))
-        except:
-            education_json = []
+        request = self.context['request']
+        education_ids = request.POST.getlist('education_psychologist_write')
+
         phone_number = validated_data.pop('phone_number')
-        education_instances = [Education.objects.create(**edu) for edu in education_json]
-
-
         user = CustomUser.objects.get_or_create(phone_number=phone_number, user_type='psychologist')[0]
 
         survey = PsychologistSurvey.objects.create(user=user, **validated_data)
         survey.psycho_topic.set(psycho_topics)
-        survey.education_psychologist.set(education_instances)
 
+        if education_ids:
+            education_instances = Education.objects.filter(id__in=education_ids)
+            survey.education_psychologist.set(education_instances)
         return survey
 
     def update(self, instance, validated_data):
@@ -92,15 +91,11 @@ class PsychologistsSurveySerializer(ModelSerializer):
             psycho_topics = [PsychoTopic.objects.get_or_create(name=name)[0] for name in final_topics]
             instance.psycho_topic.set(psycho_topics)
 
-        education_data = validated_data.pop('education_psychologist_write', None)
+        education_ids = self.context['request'].POST.getlist('education_psychologist_write')
 
-        try:
-            education_json = json.loads(education_data)
-        except:
-            education_json = []
-        if education_data is not None:
-            instance.education_psychologist.all().delete()
-            education_instances = [Education.objects.create(**edu) for edu in education_json]
+        if education_ids:
+            education_instances = Education.objects.filter(id__in=education_ids)
+
             instance.education_psychologist.set(education_instances)
 
         email = validated_data.get('email')
