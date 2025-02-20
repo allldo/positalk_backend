@@ -208,14 +208,17 @@ class MyScheduleRangeAPIView(APIView):
         current_date = start_date
         while current_date <= end_date:
             session = None
+
             for slot in timeslots:
                 if current_date.weekday() == slot.day_of_week:
                     occurrence_dt = datetime.combine(current_date, slot.time)
                     occ_str = occurrence_dt.strftime('%Y-%m-%d %H:%M')
                     status_slot = "free"
+                    client_id = None
                     if occ_str in session_dict:
                         session = session_dict[occ_str]
                         session_id = session.id
+                        client_id = session.client.id
                         status_slot = "busy"
 
                     occurrences.append({
@@ -224,6 +227,7 @@ class MyScheduleRangeAPIView(APIView):
                         'time': slot.time.strftime('%H:%M'),
                         'datetime': occ_str,
                         'status': status_slot,
+                        'client_id': client_id,
                         'session_id': session_id,
                         'client_name': session.client.get_name() if session else None
                     })
