@@ -8,9 +8,17 @@ class MessagePagination(PageNumberPagination):
 
     def get_page_size(self, request):
         page_size = super().get_page_size(request)
-        count = self.page.paginator.count
-        current_page = self.page.number
-        total_pages = self.page.paginator.num_pages
+
+        view = request.parser_context.get("view", None)
+        if not view or not hasattr(view, "get_queryset"):
+            return page_size
+
+        queryset = view.get_queryset()
+        count = queryset.count()
+
+        paginator = self.django_paginator_class(queryset, page_size)
+        total_pages = paginator.num_pages
+        current_page = int(request.query_params.get(self.page_query_param, 1))
 
         if current_page == total_pages:
             remaining_items = count % page_size
