@@ -1,11 +1,10 @@
 from datetime import date
 
-from django.db.models import Model
 from rest_framework.exceptions import ValidationError
 from rest_framework.fields import CharField, SerializerMethodField, BooleanField
 from rest_framework.serializers import Serializer, ModelSerializer
 
-from cabinet.models import Survey, Education, CustomUser
+from cabinet.models import Survey, CustomUser
 from wellness.models import Feeling, Relation, WorkStudy, LifeEvent, CoupleTherapy, PreferablePrice
 
 

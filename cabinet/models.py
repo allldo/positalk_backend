@@ -3,7 +3,8 @@ import random
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.db.models import Model, CharField, DateTimeField, BooleanField, EmailField, ForeignKey, CASCADE, SET_NULL, \
-    ManyToManyField, PositiveIntegerField, TextField, ImageField, DecimalField, DurationField, TimeField, DateField
+    ManyToManyField, PositiveIntegerField, TextField, ImageField, DecimalField, DurationField, TimeField, DateField, \
+    FileField
 from django.utils.timezone import now, timedelta
 
 from cabinet.managers import UserManager
@@ -82,6 +83,7 @@ class PhoneVerification(Model):
 class Education(Model):
     year = PositiveIntegerField(default=2000, verbose_name="Год выпуска")
     text = TextField(verbose_name="Университет")
+    diploma = FileField(upload_to='education_diplomas/', null=True, blank=True, verbose_name="Файл об образовании")
 
     def __str__(self):
         return f"Год выпуска - {self.year}"
@@ -154,6 +156,19 @@ class PsychologistSurvey(Model):
     couple_therapy = BooleanField(default=False)
     client_age = CharField(max_length=5, choices=AGE_CLIENT_CHOICES, default='18+')
     experience_with_identity_search = BooleanField(default=False)
+
+    # first_name = CharField(max_length=225, blank=True, null=True)
+    # last_name = CharField(max_length=225, blank=True, null=True)
+    # tax_status = CharField(max_length=225, choices=, default='РФ', null=True, blank=True)
+    # citizenship = CharField(max_length=225, default='РФ', null=True, blank=True)
+    # address = TextField(blank=True)
+    # inn = CharField
+
+    passport = FileField(upload_to='passport_files/', null=True, blank=True)
+    registration = FileField(upload_to='registration_files/', null=True, blank=True)
+    contract = FileField(upload_to='contract_files/', null=True, blank=True)
+    inn_file = FileField(upload_to='inn_files/', null=True, blank=True)
+    retirement_certificate = FileField(upload_to='retirement_certificate_files/', null=True, blank=True)
 
     is_approved = BooleanField(default=False, verbose_name='Одобрен/а')
     def __str__(self):
