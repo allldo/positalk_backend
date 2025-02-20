@@ -2,7 +2,7 @@ import json
 from datetime import date
 
 from jsonschema.exceptions import ValidationError
-from rest_framework.fields import DecimalField, ListField, CharField, SerializerMethodField, BooleanField
+from rest_framework.fields import DecimalField, ListField, CharField, SerializerMethodField, BooleanField, IntegerField
 from rest_framework.serializers import ModelSerializer
 from django.core.validators import validate_email
 from cabinet.models import PsychologistSurvey, Education, CustomUser
@@ -31,7 +31,7 @@ class PsychologistsSurveySerializer(ModelSerializer):
     psycho_topic = PsychoTopicSerializer(many=True, read_only=True)
     education_psychologist = EducationSerializer(many=True, read_only=True)
     accepted_to_system = BooleanField(read_only=True)
-    age = SerializerMethodField()
+    age = IntegerField(read_only=True)
     is_approved = BooleanField(read_only=True)
 
     class Meta:
@@ -118,14 +118,6 @@ class PsychologistsSurveySerializer(ModelSerializer):
 
         instance.save()
         return instance
-
-    def get_age(self, date_of_birth):
-        date_of_birth = date_of_birth.date_of_birth
-        if date_of_birth is None:
-            return None
-        today = date.today()
-        age = today.year - date_of_birth.year - ((today.month, today.day) < (date_of_birth.month, date_of_birth.day))
-        return age
 
     def validate_date_of_birth(self, date_of_birth):
         today = date.today()

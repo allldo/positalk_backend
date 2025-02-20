@@ -6,7 +6,7 @@ from django.db.models import Model, CharField, DateTimeField, BooleanField, Emai
     ManyToManyField, PositiveIntegerField, TextField, ImageField, DecimalField, DurationField, TimeField, DateField, \
     FileField
 from django.utils.timezone import now, timedelta
-
+from datetime import date
 from cabinet.managers import UserManager
 
 
@@ -139,6 +139,7 @@ class PsychologistSurvey(Model):
     user = ForeignKey(CustomUser, on_delete=CASCADE, related_name="psycho_profile", verbose_name="Пользователь")
     education_psychologist = ManyToManyField(Education, blank=True, verbose_name="Образование")
     name = CharField(max_length=225, null=True, blank=True, verbose_name="Имя")
+    age = PositiveIntegerField(null=True, blank=True, verbose_name="Возраст")
     label = CharField(max_length=225, null=True, blank=True, verbose_name="Подпись")
     experience = PositiveIntegerField(null=True, blank=True, verbose_name="Опыт")
     rating = DecimalField(max_digits=2,decimal_places=1, null=True, blank=True, verbose_name="Рейтинг")
@@ -183,3 +184,9 @@ class PsychologistSurvey(Model):
     class Meta:
         verbose_name = "Психолог"
         verbose_name_plural = "Психологи"
+
+    def save(self, *args, **kwargs):
+        if self.date_of_birth:
+            today = date.today()
+            self.age = today.year - self.date_of_birth.year - ((today.month, today.day) < (self.date_of_birth.month, self.date_of_birth.day))
+        super().save(*args, **kwargs)
