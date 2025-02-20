@@ -8,7 +8,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from cabinet.models import PhoneVerification, PsychologistSurvey
+from cabinet.models import PhoneVerification, PsychologistSurvey, Education
 from cabinet.serializers import PhoneSerializer, CodeVerificationSerializer, SurveyInfoSerializer, \
     SurveySubmitSerializer, SelfSerializer
 from cabinet.services import send_sms, adjust_time_slot, validate_phone_number
@@ -178,6 +178,7 @@ class GetSelfUserView(APIView):
 
 
 class PsychologistEducationView(ListCreateAPIView):
+    queryset = Education.objects.all()
     serializer_class = EducationSerializer
     permission_classes = [AllowAny]
     authentication_classes = [TokenAuthentication]
