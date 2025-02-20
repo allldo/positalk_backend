@@ -4,6 +4,7 @@ from rest_framework import status
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.authtoken.models import Token
 from rest_framework.generics import CreateAPIView, UpdateAPIView, RetrieveAPIView, ListCreateAPIView
+from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -182,10 +183,22 @@ class PsychologistEducationView(ListCreateAPIView):
     serializer_class = EducationSerializer
     permission_classes = [AllowAny]
     authentication_classes = [TokenAuthentication]
+    parser_classes = (MultiPartParser, FormParser)
 
     def create(self, request, *args, **kwargs):
-        many = isinstance(request.data, list)
-        serializer = self.get_serializer(data=request.data, many=many)
+        educations = []
+        for key in request.data:
+            if key.startswith("education["):
+                index = key.split("[")[1].split("]")[0]
+                field_name = key.split("][")[1][:-1]
+
+                while len(educations) <= int(index):
+                    educations.append({})
+
+                educations[int(index)][field_name] = request.data[key]
+
+        serializer = self.get_serializer(data=educations, many=True)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
+
         return Response(serializer.data, status=status.HTTP_201_CREATED)

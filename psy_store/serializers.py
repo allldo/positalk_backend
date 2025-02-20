@@ -91,12 +91,13 @@ class PsychologistsSurveySerializer(ModelSerializer):
             psycho_topics = [PsychoTopic.objects.get_or_create(name=name)[0] for name in final_topics]
             instance.psycho_topic.set(psycho_topics)
 
-        education_ids = self.context['request'].POST.getlist('education_psychologist_write')
+        education_non_jsoned = self.context['request'].POST.get('education_psychologist_write')
+        if education_non_jsoned:
+            education_ids = json.loads(education_non_jsoned)
+            if education_ids:
+                education_instances = Education.objects.filter(id__in=education_ids)
 
-        if education_ids:
-            education_instances = Education.objects.filter(id__in=education_ids)
-
-            instance.education_psychologist.set(education_instances)
+                instance.education_psychologist.set(education_instances)
 
         email = validated_data.get('email')
         if email or email == "":
