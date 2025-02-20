@@ -123,6 +123,12 @@ class PsychologistSurvey(Model):
         ('woman', 'Женский'),
         ('man', 'Мужской')
     ]
+    TAX_STATUS_CHOICES = [
+        ('Самозанятый', 'Самозанятый'),
+        ('ИП', 'ИП'),
+        ('ООО', 'ООО'),
+        ('АО', 'АО'),
+    ]
 
     AGE_CLIENT_CHOICES = [
         ('16+', '16+'),
@@ -157,12 +163,12 @@ class PsychologistSurvey(Model):
     client_age = CharField(max_length=5, choices=AGE_CLIENT_CHOICES, default='18+')
     experience_with_identity_search = BooleanField(default=False)
 
-    # first_name = CharField(max_length=225, blank=True, null=True)
-    # last_name = CharField(max_length=225, blank=True, null=True)
-    # tax_status = CharField(max_length=225, choices=, default='РФ', null=True, blank=True)
-    # citizenship = CharField(max_length=225, default='РФ', null=True, blank=True)
-    # address = TextField(blank=True)
-    # inn = CharField
+    tax_status = CharField(max_length=225, choices=TAX_STATUS_CHOICES, null=True, blank=True)
+    citizenship = CharField(max_length=225, default='РФ', null=True, blank=True)
+    address = TextField(blank=True)
+    inn = CharField(max_length=225, null=True, blank=True)
+
+    accepted_to_system = BooleanField(default=False, verbose_name='Подписан/а в Позитолк')
 
     passport = FileField(upload_to='passport_files/', null=True, blank=True)
     registration = FileField(upload_to='registration_files/', null=True, blank=True)

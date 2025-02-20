@@ -30,6 +30,7 @@ class PsychologistsSurveySerializer(ModelSerializer):
     phone = CharField(source='user.phone_number',max_length=45, read_only=True)
     psycho_topic = PsychoTopicSerializer(many=True, read_only=True)
     education_psychologist = EducationSerializer(many=True, read_only=True)
+    accepted_to_system = BooleanField(read_only=True)
     age = SerializerMethodField()
     is_approved = BooleanField(read_only=True)
 
