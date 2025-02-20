@@ -426,3 +426,12 @@ class CreateChatAPIView(CreateAPIView):
     permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
     serializer_class = CreateChatSerializer
+
+    def create(self, request, *args, **kwargs):
+        user = request.user
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        chat = Chat.objects.filter(**serializer.validated_data).first()
+        if not chat:
+            chat = Chat.objects.create(**serializer.validated_data)
+        return Response(CreateChatSerializer(chat).data)
