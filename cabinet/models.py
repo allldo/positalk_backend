@@ -59,6 +59,12 @@ class CustomUser(AbstractUser):
             return f"{settings.CURRENT_DOMAIN}{psychologist.photo.url}" if psychologist.photo else ""
         return ""
 
+    def get_avatar(self):
+        if self.user_type == 'user':
+            survey = Survey.objects.filter(user=self).first()
+            return f"{settings.CURRENT_DOMAIN}{survey.photo.url}" if survey.photo else ""
+
+
 class PhoneVerification(Model):
     phone = CharField(max_length=19, verbose_name="Номер телефона")
     code = CharField(max_length=6, verbose_name="Код")

@@ -61,7 +61,7 @@ class MessageSerializer(ModelSerializer):
 
 class ChatPsychologistSerializer(ModelSerializer):
     client_nickname = SerializerMethodField()
-    # client_avatar = SerializerMethodField()
+    client_avatar = SerializerMethodField()
     last_message = SerializerMethodField()
 
     class Meta:
@@ -69,11 +69,16 @@ class ChatPsychologistSerializer(ModelSerializer):
         fields = [
             'id',
             'client_nickname',
+            'client_avatar',
             'last_message',
         ]
 
     def get_client_nickname(self, obj):
         return obj.client.get_name()
+
+    def get_psychologist_avatar(self, obj):
+        return obj.client.get_avatar()
+
 
     def get_last_message(self, obj):
         last_message = obj.messages.last()
