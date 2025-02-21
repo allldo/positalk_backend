@@ -76,9 +76,8 @@ class ChatPsychologistSerializer(ModelSerializer):
     def get_client_nickname(self, obj):
         return obj.client.get_name()
 
-    def get_psychologist_avatar(self, obj):
+    def get_client_avatar(self, obj):
         return obj.client.get_avatar()
-
 
     def get_last_message(self, obj):
         last_message = obj.messages.last()
