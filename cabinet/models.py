@@ -116,6 +116,8 @@ class Survey(Model):
     couple_therapy = ManyToManyField("wellness.CoupleTherapy", blank=True, related_name='couple_therapy', verbose_name="Парная терапия")
     preferable_price = ForeignKey("wellness.PreferablePrice", on_delete=SET_NULL, null=True, blank=True, verbose_name="Предпочитаемая цена")
 
+    timezone = CharField(max_length=225, default='Europe/Moscow', null=True, blank=True, verbose_name="Часовой пояс")
+
     def __str__(self):
         return f"Анкета {self.nickname}, тип терапии {self.therapy_type} user {self.user.phone_number}"
 

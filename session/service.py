@@ -1,20 +1,28 @@
 from datetime import datetime, timedelta
 from typing import List
 
+import pytz
 from django.db import IntegrityError
 from django.db.models import Q, Exists
 
-from cabinet.models import PsychologistSurvey
+from cabinet.models import PsychologistSurvey, Survey
 from session.models import TimeSlot, Session
 
 
 def is_time_slot_available(psychologist, start_time, end_time, user) -> [bool, str]:
-    start_time = datetime.strptime(start_time.rstrip("Z"), "%Y-%m-%dT%H:%M:%S")
-    end_time = datetime.strptime(end_time.rstrip("Z"), "%Y-%m-%dT%H:%M:%S")
+    survey = Survey.objects.filter(user=user).first()
+    if not survey or not survey.timezone:
+        return [False, "Не удалось определить ваш часовой пояс"]
+
+    client_tz = pytz.timezone(survey.timezone)
+    psychologist_tz = pytz.timezone(psychologist.timezone)
+
+    start_time = datetime.strptime(start_time.rstrip("Z"), "%Y-%m-%dT%H:%M:%S").replace(tzinfo=pytz.utc).astimezone(client_tz)
+    end_time = datetime.strptime(end_time.rstrip("Z"), "%Y-%m-%dT%H:%M:%S").replace(tzinfo=pytz.utc).astimezone(client_tz)
     start_date = start_time.date()
     day_of_week = start_date.weekday()
 
-    if start_time < datetime.now():
+    if start_time < datetime.now(client_tz):
         return [False, "Нельзя записываться на прошедшую дату"]
 
     existing_sessions = Session.objects.filter(
@@ -27,12 +35,15 @@ def is_time_slot_available(psychologist, start_time, end_time, user) -> [bool, s
 
     if existing_sessions:
         return [False, "У вас уже есть сессия в данный день"]
-
+    start_time_psychologist = start_time.astimezone(psychologist_tz)
+    end_time_psychologist = end_time.astimezone(psychologist_tz)
+    start_date_psychologist = start_time_psychologist.date()
+    day_of_week = start_date_psychologist.weekday()
     overlapping_sessions = Session.objects.filter(
         psychologist=psychologist,
         start_time__date=start_date,
     ).exclude(status__in=['awaiting_payment', 'cancelled', 'complete']).filter(
-        Q(start_time__lt=end_time) & Q(end_time__gt=start_time)
+        Q(start_time__lt=end_time_psychologist) & Q(end_time__gt=start_time_psychologist)
     )
 
     time_slots = TimeSlot.objects.filter(
@@ -44,7 +55,7 @@ def is_time_slot_available(psychologist, start_time, end_time, user) -> [bool, s
     )
 
     for time_slot in time_slots:
-        slot_start = datetime.combine(start_date, time_slot.time)
+        slot_start = psychologist_tz.localize(datetime.combine(start_date, time_slot.time))
         slot_end = slot_start + timedelta(hours=psychologist.session_duration)
         if slot_start <= start_time < slot_end and end_time == slot_end:
             return [True, ""]

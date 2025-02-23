@@ -263,8 +263,8 @@ class TransferSessionAPIView(APIView):
                                                  "%Y-%m-%dT%H:%M:%S").replace(tzinfo=pytz.utc)
                 start_time_psychologist = start_time_utc.astimezone(psychologist_tz)
                 end_time_psychologist = end_time_utc.astimezone(psychologist_tz)
-                session.start_time = start_time_psychologist
-                session.end_time = end_time_psychologist
+                session.start_time = serializer.data.get('start_time')
+                session.end_time = serializer.data.get('end_time')
                 session.save()
                 return Response(data={'status': 'success'}, status=200)
 
