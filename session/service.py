@@ -17,8 +17,10 @@ def is_time_slot_available(psychologist, start_time, end_time, user) -> [bool, s
     client_tz = pytz.timezone(survey.timezone)
     psychologist_tz = pytz.timezone(psychologist.timezone)
 
-    start_time = datetime.strptime(start_time.rstrip("Z"), "%Y-%m-%dT%H:%M:%S").replace(tzinfo=pytz.utc).astimezone(client_tz)
-    end_time = datetime.strptime(end_time.rstrip("Z"), "%Y-%m-%dT%H:%M:%S").replace(tzinfo=pytz.utc).astimezone(client_tz)
+    # print(client_tz.localize(datetime.strptime(start_time.rstrip("Z"), "%Y-%m-%dT%H:%M:%S")))
+    start_time = client_tz.localize(datetime.strptime(start_time.rstrip("Z"), "%Y-%m-%dT%H:%M:%S"))
+    end_time = client_tz.localize(datetime.strptime(end_time.rstrip("Z"), "%Y-%m-%dT%H:%M:%S"))
+    # print(start_time, "start time", end_time, "end time")
     start_date = start_time.date()
     day_of_week = start_date.weekday()
 
@@ -53,10 +55,11 @@ def is_time_slot_available(psychologist, start_time, end_time, user) -> [bool, s
     ).exclude(
         Exists(overlapping_sessions)
     )
-
     for time_slot in time_slots:
         slot_start = psychologist_tz.localize(datetime.combine(start_date, time_slot.time))
         slot_end = slot_start + timedelta(hours=psychologist.session_duration)
+
+        print(slot_start, "slot start time", slot_end, "slot end time", start_time, "start time", end_time, "end time")
         if slot_start <= start_time < slot_end and end_time == slot_end:
             return [True, ""]
 
