@@ -4,7 +4,7 @@ from rest_framework.fields import IntegerField, ListField, SlugField, Serializer
 from rest_framework.relations import PrimaryKeyRelatedField
 from rest_framework.serializers import ModelSerializer, Serializer
 
-from wellness.models import Article, Question, Answer, Block, Test, PsychoTopic
+from wellness.models import Article, Question, Answer, Block, Test, PsychoTopic, FAQ
 
 
 class BlockNestedSerializer(ModelSerializer):
@@ -143,4 +143,10 @@ class AbuseSerializer(Serializer):
 class PsychoTopicSerializer(ModelSerializer):
     class Meta:
         model = PsychoTopic
+        fields = "__all__"
+
+
+class FAQSerializer(ModelSerializer):
+    class Meta:
+        model = FAQ
         fields = "__all__"

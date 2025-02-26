@@ -9,13 +9,13 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from cabinet.models import PhoneVerification, PsychologistSurvey, Education
+from cabinet.models import PhoneVerification, PsychologistSurvey, Education, Survey
 from cabinet.serializers import PhoneSerializer, CodeVerificationSerializer, SurveyInfoSerializer, \
-    SurveySubmitSerializer, SelfSerializer
+    SurveySubmitSerializer, SelfSerializer, SelfClientSurveySerializer
 from cabinet.services import send_sms, adjust_time_slot, validate_phone_number
 from psy_store.serializers import PsychologistsSurveySerializer, EducationSerializer
 from session.models import TimeSlot
-from session.permissions import IsPsychologist
+from session.permissions import IsPsychologist, IsClient
 from wellness.models import Feeling, Relation, WorkStudy, LifeEvent, CoupleTherapy, PreferablePrice
 
 User = get_user_model()
@@ -202,3 +202,21 @@ class PsychologistEducationView(ListCreateAPIView):
         self.perform_create(serializer)
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class ClientSurveyGetView(RetrieveAPIView):
+    serializer_class = SelfClientSurveySerializer
+    permission_classes = [IsAuthenticated, IsClient]
+    authentication_classes = [TokenAuthentication]
+
+    def get_object(self):
+        return Survey.objects.get(user=self.request.user)
+
+
+class ClientSurveyUpdateView(UpdateAPIView):
+    serializer_class = SelfClientSurveySerializer
+    permission_classes = [IsAuthenticated, IsClient]
+    authentication_classes = [TokenAuthentication]
+
+    def get_object(self):
+        return Survey.objects.get(user=self.request.user)

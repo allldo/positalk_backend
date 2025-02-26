@@ -68,3 +68,11 @@ class Message(Model):
 
     def __str__(self):
         return f"Message from {self.sender} at {self.created_at}"
+
+
+class Connection(Model):
+    client = ForeignKey("cabinet.Survey", null=True, blank=True, on_delete=CASCADE)
+    psychologist = ForeignKey("cabinet.PsychologistSurvey", null=True, blank=True, on_delete=CASCADE)
+    is_active = BooleanField(default=True)
+
+    date_started = DateTimeField(auto_now_add=True)

@@ -2,7 +2,8 @@ from rest_framework.fields import DateTimeField, SerializerMethodField, IntegerF
 from rest_framework.serializers import ModelSerializer, Serializer
 
 from cabinet.models import PsychologistSurvey
-from session.models import TimeSlot, Session, Chat, Message
+from psy_store.serializers import PsychologistsSurveySerializer
+from session.models import TimeSlot, Session, Chat, Message, Connection
 
 
 class TimeSlotSerializer(ModelSerializer):
@@ -115,4 +116,11 @@ class ChatClientSerializer(ModelSerializer):
 class CreateChatSerializer(ModelSerializer):
     class Meta:
         model = Chat
+        fields = "__all__"
+
+
+class ConnectionSerializer(ModelSerializer):
+    psychologist = PsychologistsSurveySerializer()
+    class Meta:
+        model = Connection
         fields = "__all__"

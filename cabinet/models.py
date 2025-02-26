@@ -118,6 +118,14 @@ class Survey(Model):
 
     timezone = CharField(max_length=225, default='Europe/Moscow', null=True, blank=True, verbose_name="Часовой пояс")
 
+    news_notification = BooleanField(default=False, verbose_name="Уведомления о новостях")
+    reminder_notification = BooleanField(default=False, verbose_name="Уведомления о встрече за 24 часа")
+    message_notification = BooleanField(default=False, verbose_name="Уведомления о сообщении от терапевта")
+
+    # if couple therapy
+    nickname_second = CharField(max_length=225, null=True, blank=True, verbose_name="Псевдоним")
+    photo_second = ImageField('client_photos/', null=True, blank=True,)
+    date_of_birth_second = DateField(null=True, blank=True, verbose_name="Дата рождения")
     def __str__(self):
         return f"Анкета {self.nickname}, тип терапии {self.therapy_type} user {self.user.phone_number}"
 

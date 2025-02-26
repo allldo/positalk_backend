@@ -213,3 +213,11 @@ class PsychoTopic(Model):
     class Meta:
         verbose_name = "Психологическая тема"
         verbose_name_plural = "Психологическые темы"
+
+
+class FAQ(Model):
+    question = HTMLField(blank=True)
+    answer = HTMLField(blank=True)
+
+    def __str__(self):
+        return self.question

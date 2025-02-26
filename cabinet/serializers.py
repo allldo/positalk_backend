@@ -5,6 +5,8 @@ from rest_framework.fields import CharField, SerializerMethodField, BooleanField
 from rest_framework.serializers import Serializer, ModelSerializer
 
 from cabinet.models import Survey, CustomUser
+from session.models import Connection
+from session.serializers import ConnectionSerializer
 from wellness.models import Feeling, Relation, WorkStudy, LifeEvent, CoupleTherapy, PreferablePrice
 
 
@@ -114,7 +116,6 @@ class SurveySubmitSerializer(ModelSerializer):
         return date_of_birth
 
 
-
 class SelfSerializer(ModelSerializer):
 
     has_survey = SerializerMethodField()
@@ -125,3 +126,16 @@ class SelfSerializer(ModelSerializer):
 
     def get_has_survey(self, obj):
         return Survey.objects.filter(user=obj).exists()
+
+
+class SelfClientSurveySerializer(ModelSerializer):
+
+    psychologists = SerializerMethodField()
+
+    class Meta:
+        model = Survey
+        exclude = ['user']
+
+    def get_psychologists(self, obj):
+
+        return ConnectionSerializer(Connection.objects.filter(client=obj, is_active=True), many=True).data

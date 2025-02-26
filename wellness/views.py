@@ -13,10 +13,11 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
 from wellness.filters import CaseInsensitiveSearchFilter
-from wellness.models import Article, Test, Answer, Result, Question
+from wellness.models import Article, Test, Answer, Result, Question, FAQ
 from wellness.pagination import ArticlePagination, TestPagination
 from wellness.serializers import ArticleSerializer, TestSerializer, ArticleNestedSerializer, TestSubmissionSerializer, \
-    TestListSerializer, ResultSerializer, AbuseSerializer, AnswerNestedDefaultSerializer, AnswerNestedSerializer
+    TestListSerializer, ResultSerializer, AbuseSerializer, AnswerNestedDefaultSerializer, AnswerNestedSerializer, \
+    FAQSerializer
 
 
 class ArticleViewSet(ModelViewSet):
@@ -223,3 +224,8 @@ class AbuseAPIView(CreateAPIView):
 class GetAnswers(ListAPIView):
     queryset = Answer.objects.all().order_by('-id')[:12]
     serializer_class = AnswerNestedSerializer
+
+
+class FAQListAPIView(ListAPIView):
+    queryset = FAQ.objects.all()
+    serializer_class = FAQSerializer
