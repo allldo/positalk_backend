@@ -450,11 +450,12 @@ class CancelConnectionAPIView(APIView):
 
     def post(self, request, connection_id):
         try:
-            connection = get_object_or_404(Connection, id=connection_id, client=request.user, is_active=True)
+            survey = Survey.objects.filter(user=request.user).first()
+            connection = get_object_or_404(Connection, id=connection_id, client=survey, is_active=True)
             connection.is_active = False
             connection.save()
             return Response(data={'status': 'success'}, status=200)
 
         except Exception as e:
-
+            print(e)
             return Response(data={'status': 'fail', 'reason': str(e)}, status=400)
