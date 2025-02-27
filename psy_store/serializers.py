@@ -24,7 +24,7 @@ class EducationSerializer(ModelSerializer):
 
 
 class PsychologistsSurveySerializer(ModelSerializer):
-    psycho_topics = ListField(child=CharField(), required=False, write_only=True)
+    psycho_topics = CharField(required=False, write_only=True)
     education_psychologist_write = CharField(required=False, write_only=True)
     rating = DecimalField(read_only=True, max_digits=2, decimal_places=1)
     phone_number = CharField(max_length=45, write_only=True)
@@ -74,19 +74,7 @@ class PsychologistsSurveySerializer(ModelSerializer):
     def update(self, instance, validated_data):
         psycho_topics_data = validated_data.pop('psycho_topics', None)
         if psycho_topics_data is not None:
-            if isinstance(psycho_topics_data, str):
-                final_topics = [name.strip() for name in psycho_topics_data.split(",") if name.strip()]
-            elif isinstance(psycho_topics_data, list):
-                final_topics = []
-                for item in psycho_topics_data:
-                    if isinstance(item, str) and ',' in item:
-                        final_topics.extend([name.strip() for name in item.split(",") if name.strip()])
-                    elif isinstance(item, str):
-                        final_topics.append(item.strip())
-                    else:
-                        final_topics.append(item)
-            else:
-                final_topics = []
+            final_topics = [name for name in psycho_topics_data.split(";")]
 
             psycho_topics = [PsychoTopic.objects.get_or_create(name=name)[0] for name in final_topics]
             instance.psycho_topic.set(psycho_topics)
