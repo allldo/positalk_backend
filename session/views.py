@@ -14,7 +14,7 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
 from cabinet.models import PsychologistSurvey, Survey
-from session.models import TimeSlot, Session, Chat, Message
+from session.models import TimeSlot, Session, Chat, Message, Connection
 from session.paginators import MessagePagination
 from session.permissions import IsPsychologist
 from session.serializers import TimeSlotSerializer, PsychologistSessionSerializer, SessionDateSerializer, \
@@ -30,7 +30,7 @@ class PsychologistSessionListAPIView(ListAPIView):
 
     def get_queryset(self):
         user = self.request.user
-
+        survey = Survey.objects.filter(user=user).first()
         last_session_qs = Session.objects.filter(
             client=user,
             psychologist=OuterRef('pk'),
@@ -43,9 +43,7 @@ class PsychologistSessionListAPIView(ListAPIView):
             start_time__gt=now()
         ).exclude(status__in=['awaiting_payment', 'cancelled']).order_by('start_time').values('start_time')[:1]
 
-        qs = PsychologistSurvey.objects.filter(
-            session__client=user, is_approved=True
-        ).distinct().annotate(
+        qs = PsychologistSurvey.objects.filter(connection__client=survey, is_approved=True).distinct().annotate(
             last_session=Subquery(last_session_qs, output_field=DateTimeField()),
             next_session=Subquery(next_session_qs, output_field=DateTimeField())
         )
@@ -444,3 +442,19 @@ class CreateChatAPIView(CreateAPIView):
         if not chat:
             chat = Chat.objects.create(**serializer.validated_data)
         return Response(CreateChatSerializer(chat).data)
+
+
+class CancelConnectionAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+
+    def post(self, request, connection_id):
+        try:
+            connection = get_object_or_404(Connection, id=connection_id, client=request.user, is_active=True)
+            connection.is_active = False
+            connection.save()
+            return Response(data={'status': 'success'}, status=200)
+
+        except Exception as e:
+
+            return Response(data={'status': 'fail', 'reason': str(e)}, status=400)

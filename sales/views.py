@@ -4,7 +4,9 @@ import json
 
 from drf_spectacular.utils import extend_schema
 from rest_framework import status
+from rest_framework.authentication import TokenAuthentication
 from rest_framework.exceptions import ValidationError
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.conf import settings
@@ -12,6 +14,8 @@ from sales.serializers import LinkPaymentSerializer
 
 
 class LinkPaymentAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
 
     @extend_schema(request=LinkPaymentSerializer)
     def post(self, request):

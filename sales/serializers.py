@@ -11,10 +11,8 @@ from session.models import Session
 
 
 class LinkPaymentSerializer(Serializer):
-    customer_phone = CharField(max_length=15, required=False, allow_blank=True, allow_null=True)
     title = CharField(max_length=255)
     object_id = IntegerField()
-    price = DecimalField(max_digits=10, decimal_places=2)
 
     def create(self, validated_data):
         tz = timezone("Europe/Moscow")
@@ -26,19 +24,22 @@ class LinkPaymentSerializer(Serializer):
         # urlReturn
         session_id = validated_data.get("object_id", None)
         phone_number = None
+        price = None
         if session_id:
             session = Session.objects.filter(id=session_id).first()
             phone_number = session.client.phone_number
+            price = session.psychologist.price
         data = {
             "do": "link",
             "callbackType": "json",
             "order_id": transaction_id,
             "customer_phone": phone_number,
             "installments_disabled": "1",
+            'sys': 'positalk',
             "link_expired": link_expired_time.strftime("%Y-%m-%d %H:%M"),
             "products[0][name]": validated_data["title"],
             "products[0][sku]": str(validated_data["object_id"]),
-            "products[0][price]": str(validated_data["price"]),
+            "products[0][price]": price,
             "products[0][quantity]": "1",
         }
         headers = {
@@ -47,7 +48,7 @@ class LinkPaymentSerializer(Serializer):
         }
 
         try:
-            response = requests.get('https://demo.payform.ru/', params=data, headers=headers, timeout=5)
+            response = requests.get('https://positalk.payform.ru/', params=data, headers=headers, timeout=5)
             return {"link": response.text, "link_expired_time": link_expired_time.strftime("%Y-%m-%d %H:%M"), "success": True}
         except requests.RequestException as e:
             raise ValidationError(f"Ошибка при генерации ссылки: {str(e)}")

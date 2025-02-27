@@ -129,7 +129,7 @@ class SelfSerializer(ModelSerializer):
 
 
 class SelfClientSurveySerializer(ModelSerializer):
-
+    phone = CharField(source='user.phone_number',max_length=45, read_only=True)
     psychologists = SerializerMethodField()
 
     class Meta:
