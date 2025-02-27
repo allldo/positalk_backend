@@ -176,6 +176,8 @@ class PsychologistSurvey(Model):
     session_duration = PositiveIntegerField(default=1, verbose_name="Длительность сессии") # в часах
 
     working_methods = TextField(blank=True)
+    your_values = TextField(blank=True)
+    how_get_profession = TextField(blank=True)
     couple_therapy = BooleanField(default=False)
     client_age = CharField(max_length=5, choices=AGE_CLIENT_CHOICES, default='18+')
     experience_with_identity_search = BooleanField(default=False)
