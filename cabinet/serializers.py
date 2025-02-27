@@ -1,5 +1,6 @@
 from datetime import date
 
+from django.core.validators import validate_email
 from rest_framework.exceptions import ValidationError
 from rest_framework.fields import CharField, SerializerMethodField, BooleanField
 from rest_framework.serializers import Serializer, ModelSerializer
@@ -139,3 +140,19 @@ class SelfClientSurveySerializer(ModelSerializer):
     def get_psychologists(self, obj):
 
         return ConnectionSerializer(Connection.objects.filter(client=obj, is_active=True), many=True).data
+
+    def update(self, instance, validated_data):
+        email = validated_data.get('email')
+        if email or email == "":
+            try:
+                validate_email(email)
+            except ValidationError:
+                raise ValidationError("Invalid email address")
+
+            if Survey.objects.filter(email=email).exclude(id=instance.id).exists():
+                raise ValidationError("This email already exists")
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+
+        instance.save()
+        return instance
