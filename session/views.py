@@ -43,7 +43,9 @@ class PsychologistSessionListAPIView(ListAPIView):
             start_time__gt=now()
         ).exclude(status__in=['awaiting_payment', 'cancelled']).order_by('start_time').values('start_time')[:1]
 
-        qs = PsychologistSurvey.objects.filter(connection__client=survey, is_approved=True).distinct().annotate(
+        qs = PsychologistSurvey.objects.filter(connection__client=survey,
+                                               connection__is_active=True,
+                                               is_approved=True).distinct().annotate(
             last_session=Subquery(last_session_qs, output_field=DateTimeField()),
             next_session=Subquery(next_session_qs, output_field=DateTimeField())
         )
@@ -146,7 +148,7 @@ class PsychologistScheduleRangeAPIView(APIView):
                         status_slot = "free"
                     occurrences.append({
                         'slot_id': slot.id,
-                        'day_of_week': slot.get_day_of_week_display(),
+                        'day_of_week': settings.DAYS_RU[occurrence_dt_client.strftime('%A')],
                         'time': occurrence_dt_client.strftime('%H:%M'),
                         'datetime': occurrence_dt_client.strftime('%Y-%m-%d %H:%M'),
                         'status': status_slot,
